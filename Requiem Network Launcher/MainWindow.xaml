@@ -1,12 +1,32 @@
-﻿<Window x:Class="Requiem_Network_Launcher.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Requiem_Network_Launcher"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
-</Window>
+﻿<Controls:MetroWindow x:Class="Requiem_Network_Launcher.MainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:local="clr-namespace:Requiem_Network_Launcher"
+                      mc:Ignorable="d"
+                      ResizeBorderThickness="0" BorderThickness="0" GlowBrush="Black"
+                      Loaded="MainWindow_Loaded"
+                      Closed="MetroWindow_Closed"
+                      MinHeight="484" MinWidth="750" MaxHeight="930" MaxWidth="1440" Height="930" Width="1440" WindowStartupLocation="CenterScreen"
+                      ResizeMode="CanResizeWithGrip" TitlebarHeight="33" FontFamily="Century Gothic" FontSize="16" ShowMaxRestoreButton="False" SaveWindowPosition="True">
+    <Window.Background>
+        <ImageBrush ImageSource="http://requiemnetwork.com/launcher/background.jpg"/>
+    </Window.Background>
+    <Controls:MetroWindow.LeftWindowCommands>
+        <Controls:WindowCommands>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="TitleTextBlock" Padding="10,7,10,4" Text="REQUIEM NETWORK" FontFamily="Century Gothic" FontWeight="Bold"></TextBlock>
+                <Button x:Name="LogoutButton" Content="LOGIN" FontFamily="Century Gothic" FontWeight="Bold" Click="LogoutButton_Click"/>
+            </StackPanel>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.LeftWindowCommands>
+    <Viewbox Stretch="Fill">
+        <Grid>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Frame x:Name="MainFrame" Navigating="MainFrame_OnNavigating" NavigationUIVisibility="Hidden"/>
+            </StackPanel>
+        </Grid>
+    </Viewbox>
+</Controls:MetroWindow>
