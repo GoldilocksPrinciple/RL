@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using System.Net;
 
 namespace Requiem_Network_Launcher
 {
@@ -19,7 +20,7 @@ namespace Requiem_Network_Launcher
         public static byte[] EncryptedPassword { get => _encryptedPassword; set => _encryptedPassword = value; }
         public static byte[] IV { get => _IV; set => _IV = value; }
         public static string LoginToken { get => _loginToken; set => _loginToken = value; }
-
+        
         public static void SaveUserLoginInfo(string username, byte[] encryptedPassword, byte[] IV)
         {
             RegistryKey requiemKey = keyCurrentUser.CreateSubKey(@"SOFTWARE\RequiemNetwork");
@@ -30,18 +31,26 @@ namespace Requiem_Network_Launcher
 
         public static void GetUserLoginInfo()
         {
-            RegistryKey requiemKey = keyCurrentUser.OpenSubKey(@"SOFTWARE\RequiemNetwork");
-            byte[] userName = (byte[])requiemKey.GetValue("464443");
-            if (userName == null)
+            try
             {
-                Username = "";
+                RegistryKey requiemKey = keyCurrentUser.OpenSubKey(@"SOFTWARE\RequiemNetwork");
+                byte[] userName = (byte[])requiemKey.GetValue("464443");
+                if (userName == null)
+                {
+                    Username = "";
+                }
+                else
+                {
+                    Username = Encoding.ASCII.GetString(userName);
+                    EncryptedPassword = (byte[])requiemKey.GetValue("41483");
+                    IV = (byte[])requiemKey.GetValue("947");
+                }
             }
-            else
+            catch (NullReferenceException)
             {
-                Username = Encoding.ASCII.GetString(userName);
-                EncryptedPassword = (byte[])requiemKey.GetValue("41483");
-                IV = (byte[])requiemKey.GetValue("947");
+                RegistryKey requiemKey = keyCurrentUser.CreateSubKey(@"SOFTWARE\RequiemNetwork");
             }
+            
         }
 
         public static void ClearUserLoginInfo()

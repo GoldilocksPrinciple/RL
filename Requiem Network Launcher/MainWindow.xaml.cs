@@ -7,6 +7,9 @@ using System.Windows.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.IO;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace Requiem_Network_Launcher
 {
@@ -22,6 +25,7 @@ namespace Requiem_Network_Launcher
         public string updatePath;
         public string dropRateCalculatorPath;
         public string currentVersionLocal;
+        public string launcherInfoPath;
         private NotifyIcon _nIcon;
 
         public MainWindow()
@@ -34,6 +38,8 @@ namespace Requiem_Network_Launcher
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             CheckUserInfo();
+            launcherInfoPath = rootDirectory + "\\info.txt";
+            File.WriteAllText(launcherInfoPath, "LauncherVersion=" + Assembly.GetExecutingAssembly().GetName().Version.ToString());
             MainFrame.Content = new LoginPage();
         }
 
@@ -84,11 +90,47 @@ namespace Requiem_Network_Launcher
             _nIcon.Visible = true;
             _nIcon.DoubleClick += delegate (object sender, EventArgs e) { this.Show(); this.WindowState = WindowState.Normal; };
             _nIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
+            _nIcon.ContextMenuStrip.Items.Add("Forum", null, this.Forum_Click);
+            _nIcon.ContextMenuStrip.Items.Add("Drop Rates Calculator", null, this.DRC_Click);
+            _nIcon.ContextMenuStrip.Items.Add("Dye Website", null, this.DyeSite_Click);
             _nIcon.ContextMenuStrip.Items.Add("Logout", null, this.LogoutMenu_Click);
             _nIcon.ContextMenuStrip.Items.Add("Exit", null, this.MenuExit_Click);
             _nIcon.Text = "Requiem Network Launcher";
         }
 
+        private void Forum_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://requiemnetwork.com");
+        }
+
+        private void DRC_Click(object sender, EventArgs e)
+        {
+            if (!File.Exists(dropRateCalculatorPath))
+            {
+                System.Windows.MessageBox.Show("Cannot find DropRateCalculator in the current folder. Make sure the launcher is in main game folder!",
+                                                                                             "File Not Found", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                Process dropCalculator = new Process();
+                try
+                {
+                    dropCalculator.EnableRaisingEvents = true;
+                    dropCalculator.StartInfo.FileName = dropRateCalculatorPath;
+                    dropCalculator.Start();
+                }
+                catch (Exception)
+                {
+                    System.Windows.MessageBox.Show("There is already an instance of the game running...", "Error");
+                }
+            }
+        }
+
+        private void DyeSite_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://requiemnetwork.com/dye");
+        }
+        
         private void MenuExit_Click(object sender, EventArgs e)
         {
             _nIcon.Visible = false;
@@ -117,8 +159,7 @@ namespace Requiem_Network_Launcher
         private void MetroWindow_Closed(object sender, EventArgs e)
         {
             _nIcon.Visible = false;
-            Console.WriteLine("I override!");
-            this.Close();
+            Environment.Exit(0);
         }
 
         #endregion
@@ -148,6 +189,7 @@ namespace Requiem_Network_Launcher
         /// <param name="e"></param>
         private void MainFrame_OnNavigating(object sender, NavigatingCancelEventArgs e)
         {
+            
             var da = new DoubleAnimation();
             da.Duration = TimeSpan.FromSeconds(0.7);
             if (e.NavigationMode == NavigationMode.New)
@@ -159,6 +201,10 @@ namespace Requiem_Network_Launcher
             {
                 (e.Content as Page).BeginAnimation(OpacityProperty, da);
             }));
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                e.Cancel = true;
+            }
         }
         #endregion
 

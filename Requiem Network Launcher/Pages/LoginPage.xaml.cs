@@ -16,6 +16,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Security.Cryptography;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Requiem_Network_Launcher
 {
@@ -24,6 +25,8 @@ namespace Requiem_Network_Launcher
     /// </summary>
     public partial class LoginPage : Page
     {
+        System.Net.CookieContainer myCookies = new System.Net.CookieContainer();
+
         public LoginPage()
         {
             InitializeComponent();
@@ -120,7 +123,7 @@ namespace Requiem_Network_Launcher
                     string responseToken = responseStringSplit[2].Split('"')[3];
                     UserInfoRegistry.LoginToken = responseToken.Replace(@"\", ""); // "\/" is not valid. Correct format should be "/" only, "\" acts as an escape character
                     
-                    this.NavigationService.Navigate(new MainGamePage());
+                    this.NavigationService.Navigate(new MainGamePage(), myCookies);
 
                     var mainWindow = Application.Current.MainWindow as MainWindow;
                     Dispatcher.Invoke((Action)(() =>
@@ -369,5 +372,6 @@ namespace Requiem_Network_Launcher
             }
         }
         #endregion
+        
     }
 }

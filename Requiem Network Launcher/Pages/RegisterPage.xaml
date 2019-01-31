@@ -8,8 +8,8 @@
       Title="RegisterPage" Height="930" Width="1440">
     <Grid HorizontalAlignment="Center" Height="660" VerticalAlignment="Center" Width="408" Background="#BF000000">
         <local:LoadingSpinner x:Name="LoadingSpinner" EllipseSize="20" HorizontalAlignment="Center" Margin="40,410,54,0" Height="60" Width="60" Visibility="Hidden"/>
-        <Button x:Name="RegisterButton" Content="REGISTER" Click="RegisterButton_Click" Background="#BFFFFFFF" FontSize="22" FontFamily="Century Gothic" HorizontalContentAlignment="Center" BorderBrush="{x:Null}" Height="60" VerticalAlignment="Top" Margin="52,500,52,0"/>
-        <Button x:Name="BackToLoginButton" Content="BACK TO LOGIN" Click="BackToLoginButton_Click" Background="#BFFFFFFF" FontSize="22" FontFamily="Century Gothic" HorizontalContentAlignment="Center" BorderBrush="{x:Null}" Margin="52,565,52,0" Height="60" VerticalAlignment="Top"/>
+        <Button x:Name="RegisterButton" Content="REGISTER" Click="RegisterButton_Click" Background="#BFFFFFFF" FontSize="22" FontFamily="Century Gothic" HorizontalContentAlignment="Center" BorderBrush="{x:Null}" Height="60" VerticalAlignment="Top" Margin="52,500,52,0" FontWeight="Normal"/>
+        <Button x:Name="BackToLoginButton" Content="BACK TO LOGIN" Click="BackToLoginButton_Click" Background="#BFFFFFFF" FontSize="22" FontFamily="Century Gothic" HorizontalContentAlignment="Center" BorderBrush="{x:Null}" Margin="52,565,52,0" Height="60" VerticalAlignment="Top" FontWeight="Normal"/>
         <Grid Height="132" Margin="52,52,52,0" VerticalAlignment="Top">
             <Grid.Background>
                 <ImageBrush ImageSource="/Resources/LauncherLogo.png"/>
@@ -17,9 +17,9 @@
         </Grid>
         <Grid Margin="52,189,52,266" Width="304">
             <Label Content="Username:" Height="30" VerticalAlignment="Top" Foreground="White" FontFamily="Century Gothic" FontSize="20" VerticalContentAlignment="Center" Margin="-4,-2,4,0"/>
-            <TextBox x:Name="RegisterUsernameBox" KeyDown="RegisterUsernameBox_KeyDown" MaxLines="1" Height="35" Margin="0,28,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="#BFFFFFFF" FontFamily="Century Gothic" BorderBrush="Black" FontSize="20" FontWeight="Bold" ToolTip="Alphabetical characters and numbers only.&#x0a;Special characters like #, %, etc. are not allowed."/>
+            <TextBox x:Name="RegisterUsernameBox" KeyDown="RegisterUsernameBox_KeyDown" MaxLines="1" Height="35" Margin="0,28,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="#BFFFFFFF" FontFamily="Century Gothic" BorderBrush="Black" FontSize="20" ToolTip="Alphabetical characters and numbers only.&#x0a;Special characters like #, %, etc. are not allowed."/>
             <Label Content="E-mail:" Height="30" VerticalAlignment="Top" Foreground="White" FontFamily="Century Gothic" FontSize="18" VerticalContentAlignment="Center" Margin="-4,68,4,0"/>
-            <TextBox x:Name="RegisterEmailBox" KeyDown="RegisterEmailBox_KeyDown" MaxLines="1" Height="35" Margin="0,98,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="#BFFFFFFF" FontFamily="Century Gothic" BorderBrush="Black" FontSize="20" FontWeight="Bold"/>
+            <TextBox x:Name="RegisterEmailBox" KeyDown="RegisterEmailBox_KeyDown" MaxLines="1" Height="35" Margin="0,98,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="#BFFFFFFF" FontFamily="Century Gothic" BorderBrush="Black" FontSize="20"/>
             <Label Content="Password:" Height="30" Margin="-4,138,4,0" VerticalAlignment="Top" Foreground="White" FontFamily="Century Gothic" FontSize="18" VerticalContentAlignment="Center"/>
             <PasswordBox x:Name="RegisterPasswordBox" KeyDown="RegisterPasswordBox_KeyDown" Height="35" PasswordChar="•" VerticalAlignment="Top" VerticalContentAlignment="Center" ToolTip="Alphabetical characters and numbers only.&#x0a;Special characters like #, %, etc. are not allowed." Background="#BFFFFFFF" BorderBrush="Black" Margin="0,168,0,0" FontSize="20" FontWeight="Bold"/>
             <TextBlock x:Name="RegisterNotificationBox" HorizontalAlignment="Left" Margin="0,213,0,-99" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="304" Height="91" FontFamily="Century Gothic" FontWeight="Bold" FontSize="18"/>
