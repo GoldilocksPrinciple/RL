@@ -44,8 +44,8 @@ namespace Requiem_Network_Launcher
             ManagementObject dsk = new ManagementObject(@"win32_logicaldisk.deviceid=""c:""");
             dsk.Get();
             sb.Append(dsk["VolumeSerialNumber"].ToString());
-
-            Hwid = sb.ToString().Substring(0, 32);
+            
+            Hwid = sb.ToString().PadLeft(32, '0').Substring(0, 32);
         }
     }
 }

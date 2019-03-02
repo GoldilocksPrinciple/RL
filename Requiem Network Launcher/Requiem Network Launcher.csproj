@@ -105,7 +105,6 @@
       <DependentUpon>RestartLauncherDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\CheckDotNetVersion.cs" />
-    <Compile Include="Utils\Class1.cs" />
     <Compile Include="Utils\CookieAwareWebClient.cs">
       <SubType>Component</SubType>
     </Compile>

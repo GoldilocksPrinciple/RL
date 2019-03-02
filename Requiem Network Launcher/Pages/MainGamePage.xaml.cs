@@ -37,7 +37,9 @@ namespace Requiem_Network_Launcher
         private string _currentVersionLocal;
         private string _launcherUpdatePath;
         private bool playing = false;
+        private bool updating = false;
         private CookieContainer myCookies = new System.Net.CookieContainer();
+        private Stopwatch sw = new Stopwatch();
 
         public MainGamePage()
         {
@@ -49,7 +51,7 @@ namespace Requiem_Network_Launcher
                 PullRSSFeed("http://requiemnetwork.com/forum/44-server-news.xml/", "http://requiemnetwork.com/forum/44-server-news/");
             }).Start();
             
-            System.Timers.Timer aTimer = new System.Timers.Timer(36000000); // 36000000
+            System.Timers.Timer aTimer = new System.Timers.Timer(300000); // 300000 = 5 mins
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
             aTimer.Enabled = true;
@@ -119,6 +121,12 @@ namespace Requiem_Network_Launcher
                 ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
                 DownloadInfoBox.Text = "Preparing update...";
                 DownloadInfoBox.Foreground = new SolidColorBrush(Colors.LawnGreen);
+
+                // disable start game button when check for game version
+                StartGameButton.Content = "UPDATING";
+                StartGameButton.IsEnabled = false;
+                StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
+
             }));
 
             foreach (var process in Process.GetProcessesByName("Vindictus"))
@@ -172,6 +180,8 @@ namespace Requiem_Network_Launcher
             _updatePath = System.IO.Path.Combine(mainWindow.rootDirectory, "UpdateTemporary.zip");
             //_updatePath = @"D:\test\UpdateTemp.zip";
 
+            // Start stopwatch
+            sw.Start();
 
             // download update (zip) 
             try
@@ -225,6 +235,10 @@ namespace Requiem_Network_Launcher
 
         private void WebClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
+
+            // Stop stopwatch
+            sw.Stop();
+
             var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
 
             // get the size of the downloaded file
@@ -292,7 +306,7 @@ namespace Requiem_Network_Launcher
 
         private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            double total = ((double)e.BytesReceived / (double)_updateFileSize) * 100;
+            double totalSize = ((double)e.BytesReceived / (double)_updateFileSize) * 100;
             if (_continueSign == "continue")
             {
                 Dispatcher.Invoke((Action)(() =>
@@ -300,11 +314,12 @@ namespace Requiem_Network_Launcher
                     // display updating status notice
                     ProgressDetails.Visibility = Visibility.Visible;
                     ProgressBar.Visibility = Visibility.Visible;
-                    ProgressBar.Value = total;
+                    ProgressBar.Value = totalSize;
                     ProgressDetails.Text = FileSizeType(e.BytesReceived) + " / " + FileSizeType(_updateFileSize);
 
-                    ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
-                    DownloadInfoBox.Text = "Dowloading update... " + total.ToString("F2") + "%";
+                    ShowHideDownloadInfo(DownloadInfoBox.Height, "2lines");
+                    DownloadInfoBox.Text = "Dowloading update... " + totalSize.ToString("F2") + "%\n" +
+                                           "Speed: " + DownloadSpeedConverter(e.BytesReceived);
 
                 }));
             }
@@ -313,6 +328,29 @@ namespace Requiem_Network_Launcher
         private void GetDownloadFileSize(string fileSize)
         {
             _updateFileSize = System.Convert.ToInt64(fileSize);
+        }
+
+        private string DownloadSpeedConverter(double bytesReceived)
+        {
+            string totalSpeed;
+            double speedInKB = ((double)bytesReceived / 1024d / sw.Elapsed.TotalSeconds);
+            double speedInMB = ((double)bytesReceived / 1024d / 1024d / sw.Elapsed.TotalSeconds);
+            double speedInGB = ((double)bytesReceived / 1024d / 1024d / 1024d / sw.Elapsed.TotalSeconds);
+
+            if (speedInKB > 1000)
+            {
+                totalSpeed = string.Format("{0} MB/s", speedInMB.ToString("0.00"));
+            }
+            else if (speedInKB > 1000000)
+            {
+                totalSpeed = string.Format("{0} GB/s", speedInGB.ToString("0.00"));
+            }
+            else
+            {
+                totalSpeed = string.Format("{0} KB/s", speedInKB.ToString("0.00"));
+            }
+
+            return totalSpeed;
         }
 
         private string FileSizeType(double bytes)
@@ -344,6 +382,12 @@ namespace Requiem_Network_Launcher
                 ProgressBar.Visibility = Visibility.Visible;
                 ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
                 DownloadInfoBox.Text = "Downloading new launcher...";
+                DownloadInfoBox.Foreground = new SolidColorBrush(Colors.LawnGreen);
+
+                // disable start game button when check for game version
+                StartGameButton.Content = "UPDATING";
+                StartGameButton.IsEnabled = false;
+                StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
             }));
 
             try
@@ -371,8 +415,13 @@ namespace Requiem_Network_Launcher
             {
                 // display updating status notice
                 ProgressBar.Visibility = Visibility.Hidden;
-                ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
-                DownloadInfoBox.Text = "New launcher downloaded";
+                ShowHideDownloadInfo(DownloadInfoBox.Height, "2lines");
+                DownloadInfoBox.Text = "New launcher downloaded.\nRestart required.";
+
+                // disable start game button when check for game version
+                StartGameButton.Content = "DOWNLOADED";
+                StartGameButton.IsEnabled = false;
+                StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
             }));
             RestartLauncherDialog dialog = new RestartLauncherDialog();
             dialog.ShowDialog();
@@ -394,7 +443,6 @@ namespace Requiem_Network_Launcher
         private async void CheckForLauncherUpdate()
         {
             var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-            Console.WriteLine("I was called!");
 
             var launcherInfoFile = System.IO.File.ReadAllText(mainWindow.launcherInfoPath);
             var launcherInfoSplit = launcherInfoFile.Split('=');
@@ -412,7 +460,12 @@ namespace Requiem_Network_Launcher
                 // check if player has updated their game yet or not
                 if (launcherInfoLocal != launcherInfoServerSplit[1])
                 {
-                    UpdateLauncher();
+                    if (mainWindow.waitingForRestart == false)
+                    {
+                        UpdateLauncher();
+                        mainWindow.waitingForRestart = true;
+                    }
+
                 }
             }
             catch (Exception e)
@@ -424,10 +477,13 @@ namespace Requiem_Network_Launcher
 
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            Dispatcher.BeginInvoke((Action)(() =>
+            if (updating == false)
             {
-                CheckForLauncherUpdate();
-            }));
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    CheckForLauncherUpdate();
+                }));
+            }
         }
         #endregion
 
@@ -477,9 +533,7 @@ namespace Requiem_Network_Launcher
             foreach (SyndicationItem item in feed.Items)
             {
                 string description = item.Summary.Text;
-
-                Console.WriteLine("Test" + item.Links[0].Uri.ToString());
-
+                
                 description = HTMLToText.ConvertHtml(description);
                 description = description.Replace("Spoiler", "");
 
@@ -492,8 +546,7 @@ namespace Requiem_Network_Launcher
                     Feed_publishDate = "Posted on: " + item.PublishDate.ToString(),
                     Feed_forumLink = item.Links[0].Uri.ToString()
                 });
-
-                Console.WriteLine("Finished!");
+                
             }
             Dispatcher.Invoke((Action)(() =>
             {
@@ -552,7 +605,7 @@ namespace Requiem_Network_Launcher
             // update small version info at bottom left corner
             Dispatcher.Invoke((Action)(() =>
             {
-                VersionDisplayLabel.Content = "Version: " + currentVersionLocal + " - Release Date: " + currentVersionDate;
+                VersionDisplayLabel.Content = "Game version: " + currentVersionLocal + " - Release Date: " + currentVersionDate;
             }));
 
             // work with .net framework 4.5 and above
@@ -570,6 +623,7 @@ namespace Requiem_Network_Launcher
                 {
                     // store variable so that it can be accessed outside of async method
                     _currentVersionLocal = currentVersionLocal;
+                    updating = true;
                     _continueSign = "continue";
                     Update();
                 }
@@ -578,6 +632,7 @@ namespace Requiem_Network_Launcher
                     // display notice
                     Dispatcher.Invoke((Action)(() =>
                     {
+                        updating = false;
                         ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
                         DownloadInfoBox.Text = "Your game is up-to-date!";
                         DownloadInfoBox.Foreground = new SolidColorBrush(Colors.LawnGreen);
@@ -692,9 +747,9 @@ namespace Requiem_Network_Launcher
             }
             else if (signal == "2lines")
             {
-                if (from != 75)
+                if (from != 70)
                 {
-                    da.To = 75;
+                    da.To = 70;
                     Dispatcher.Invoke((Action)(() =>
                     {
                         DownloadInfoBox.BeginAnimation(HeightProperty, da);
@@ -703,9 +758,9 @@ namespace Requiem_Network_Launcher
             }
             else if (signal == "3lines")
             {
-                if (from != 110)
+                if (from != 105)
                 {
-                    da.To = 110;
+                    da.To = 105;
                     Dispatcher.Invoke((Action)(() =>
                     {
                         DownloadInfoBox.BeginAnimation(HeightProperty, da);
@@ -777,9 +832,9 @@ namespace Requiem_Network_Launcher
                     dropCalculator.StartInfo.FileName = mainWindow.dropRateCalculatorPath;
                     dropCalculator.Start();
                 }
-                catch (Exception)
+                catch (Exception e1)
                 {
-                    System.Windows.MessageBox.Show("There is already an instance of the game running...", "Error");
+                    System.Windows.MessageBox.Show(e1.Message);
                 }
             }
 

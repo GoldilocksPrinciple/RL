@@ -17,6 +17,7 @@ namespace Requiem_Network_Launcher
 
         private void RestartLauncherButton_Click(object sender, RoutedEventArgs e)
         {
+            ((MainWindow)Application.Current.MainWindow).waitingForRestart = false;
             string launcherUpdaterPath = System.IO.Path.Combine(((MainWindow)Application.Current.MainWindow).rootDirectory, "updater.exe");
             Process launcherUpdater = new Process();
             launcherUpdater.StartInfo.FileName = launcherUpdaterPath;

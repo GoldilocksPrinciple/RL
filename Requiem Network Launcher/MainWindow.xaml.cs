@@ -26,8 +26,10 @@ namespace Requiem_Network_Launcher
         public string dropRateCalculatorPath;
         public string currentVersionLocal;
         public string launcherInfoPath;
+        public bool waitingForRestart = false;
         private NotifyIcon _nIcon;
 
+        #region Constructor
         public MainWindow()
         {
             InitializeComponent();
@@ -39,14 +41,22 @@ namespace Requiem_Network_Launcher
         {
             CheckUserInfo();
             launcherInfoPath = rootDirectory + "\\info.txt";
-            File.WriteAllText(launcherInfoPath, "LauncherVersion=" + Assembly.GetExecutingAssembly().GetName().Version.ToString());
-            MainFrame.Content = new LoginPage();
+            try
+            {
+                File.WriteAllText(launcherInfoPath, "LauncherVersion=" + Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                MainFrame.Content = new LoginPage();
+            }
+            catch (ArgumentException e1)
+            {
+                System.Windows.MessageBox.Show(e1.Message);
+            }
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             Logout();
         }
+        #endregion
 
         #region Check user info: DotNet version, hwid, user login info, file path
         private void CheckUserInfo()
@@ -70,15 +80,22 @@ namespace Requiem_Network_Launcher
             
             HardwareID.GetHardwareID();
             UserInfoRegistry.GetUserLoginInfo();
-            
+           
             // get current directory of the Launcher
             rootDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
 
             // set path for winnsi.dll and Vindictus.exe, version.txt and LauncherUpdater.exe
-            dllPath = System.IO.Path.Combine(rootDirectory, "winnsi.dll");
-            processPath = System.IO.Path.Combine(rootDirectory, "Vindictus.exe");
-            versionPath = System.IO.Path.Combine(rootDirectory, "version.txt");
-            dropRateCalculatorPath = System.IO.Path.Combine(rootDirectory, "DropRatesCalculator.exe");
+            try
+            {
+                dllPath = System.IO.Path.Combine(rootDirectory, "winnsi.dll");
+                processPath = System.IO.Path.Combine(rootDirectory, "Vindictus.exe");
+                versionPath = System.IO.Path.Combine(rootDirectory, "version.txt");
+                dropRateCalculatorPath = System.IO.Path.Combine(rootDirectory, "DropRatesCalculator.exe");
+            }
+            catch (ArgumentException e)
+            {
+                System.Windows.MessageBox.Show(e.Message);
+            }
         }
         #endregion
 
@@ -92,7 +109,7 @@ namespace Requiem_Network_Launcher
             _nIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
             _nIcon.ContextMenuStrip.Items.Add("Forum", null, this.Forum_Click);
             _nIcon.ContextMenuStrip.Items.Add("Drop Rates Calculator", null, this.DRC_Click);
-            _nIcon.ContextMenuStrip.Items.Add("Dye Website", null, this.DyeSite_Click);
+            _nIcon.ContextMenuStrip.Items.Add("Dye System", null, this.DyeSite_Click);
             _nIcon.ContextMenuStrip.Items.Add("Logout", null, this.LogoutMenu_Click);
             _nIcon.ContextMenuStrip.Items.Add("Exit", null, this.MenuExit_Click);
             _nIcon.Text = "Requiem Network Launcher";

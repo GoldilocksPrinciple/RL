@@ -14,7 +14,7 @@
     </Window.Background>
 
     <Grid>
-        <TextBlock Padding="0,20,0,0" Text="Cool! A new version of launcher has been downloaded!&#x0a; Press RESTART to complete the process." TextAlignment="Center" Foreground="White" FontSize="14"/>
+        <TextBlock Padding="0,20,0,0" Text="Woahh! A new version of launcher has been downloaded!&#x0a; Please press RESTART to complete the process." TextAlignment="Center" Foreground="White" FontSize="14"/>
         <Button x:Name="RestartLauncherButton" Content="RESTART" Click="RestartLauncherButton_Click" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="186" Height="53" Margin="0,69,0,27" Background="#BFFFFFFF" BorderBrush="{x:Null}" FontFamily="Century Gothic" FontSize="18"/>
     </Grid>
     

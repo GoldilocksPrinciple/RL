@@ -9,7 +9,7 @@
                       ResizeBorderThickness="0" BorderThickness="0" GlowBrush="Black"
                       Loaded="MainWindow_Loaded"
                       Closed="MetroWindow_Closed"
-                      MinHeight="484" MinWidth="750" MaxHeight="930" MaxWidth="1440" Height="930" Width="1440" WindowStartupLocation="CenterScreen"
+                      MinHeight="484" MinWidth="750" MaxHeight="930" MaxWidth="1440" Height="484" Width="750" WindowStartupLocation="CenterScreen"
                       ResizeMode="CanResizeWithGrip" TitlebarHeight="33" FontFamily="Century Gothic" FontSize="16" ShowMaxRestoreButton="False" SaveWindowPosition="True">
     <Window.Background>
         <ImageBrush ImageSource="http://requiemnetwork.com/launcher/background.jpg"/>
