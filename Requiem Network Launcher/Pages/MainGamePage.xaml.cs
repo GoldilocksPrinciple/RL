@@ -403,7 +403,7 @@ namespace Requiem_Network_Launcher
             }
             catch (Exception e1)
             {
-                System.Windows.MessageBox.Show(e1.Message, "Connection error");
+                System.Windows.MessageBox.Show(e1.Message, "Checking for launcher update failed");
 
             }
         }
@@ -423,6 +423,7 @@ namespace Requiem_Network_Launcher
                 StartGameButton.IsEnabled = false;
                 StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
             }));
+            mainWindow.Hide();
             RestartLauncherDialog dialog = new RestartLauncherDialog();
             dialog.ShowDialog();
         }
@@ -686,6 +687,8 @@ namespace Requiem_Network_Launcher
         {
             var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
 
+            UpdateWarningWindow dialog = new UpdateWarningWindow();
+
             var ngclientFilePath = System.IO.Path.Combine(mainWindow.rootDirectory, "NGClient.aes");
 
             /*_dllPath = @"C:\Requiem\ko-KR\winnsi.dll";
@@ -695,16 +698,19 @@ namespace Requiem_Network_Launcher
             if (!File.Exists(mainWindow.versionPath))
             {
                 _versionTxtCheck = "not found";
+                dialog.ShowDialog();
                 Update();
             }
             else if (!File.Exists(mainWindow.dllPath))
             {
                 _versionTxtCheck = "not found";
+                dialog.ShowDialog();
                 Update();
             }
             else if (!File.Exists(mainWindow.processPath))
             {
                 _versionTxtCheck = "not found";
+                dialog.ShowDialog();
                 Update();
             }
             else if (!File.Exists(ngclientFilePath))

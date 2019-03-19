@@ -1,0 +1,22 @@
+﻿<Controls:MetroWindow x:Class="Requiem_Network_Launcher.UpdateWarningWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:local="clr-namespace:Requiem_Network_Launcher"
+                      mc:Ignorable="d"
+                      Icon="/Resources/launcher_icon.ico"
+                      ResizeBorderThickness="0" BorderThickness="0" GlowBrush="Black" WindowStartupLocation="CenterScreen" TitlebarHeight="33"
+                      Height="177.88" Width="412.435" FontFamily="Century Gothic" FontWeight="Bold" ResizeMode="NoResize" ShowCloseButton="False" ShowIconOnTitleBar="True">
+    <Window.Background>
+        <SolidColorBrush Opacity="0.2" Color="Gray"/>
+    </Window.Background>
+
+    <Grid>
+        <TextBlock Padding="0,20,0,0" Text="An update is required in order to play the game.&#x0a;Update size: 5.1 GB&#x0a;Do you want to proceed?" TextAlignment="Center" Foreground="White" FontSize="14"/>
+        <Button x:Name="AgreeUpdateButton" Content="YES" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="142" Height="53" Margin="48,86,216,10" Background="#BFFFFFFF" BorderBrush="{x:Null}" FontFamily="Century Gothic" FontSize="18" Click="AgreeUpdateButton_Click"/>
+        <Button x:Name="DeclineUpdateButton" Content="NO" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="142" Height="53" Margin="216,86,48,10" Background="#BFFFFFFF" BorderBrush="{x:Null}" FontFamily="Century Gothic" FontSize="18" Click="DeclineUpdateButton_Click"/>
+    </Grid>
+
+</Controls:MetroWindow>

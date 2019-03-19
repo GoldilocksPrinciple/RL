@@ -118,6 +118,12 @@ namespace Requiem_Network_Launcher
                             Console.WriteLine("Error: {0}", e.Message);
                         }
                     }
+                    else
+                    {
+                        byte[] pswd = new byte[0];
+                        byte[] iv = new byte[0];
+                        UserInfoRegistry.SaveUserLoginInfo("", pswd, iv);
+                    }
 
                     // split string to "token", ":", and token value
                     string responseToken = responseStringSplit[2].Split('"')[3];

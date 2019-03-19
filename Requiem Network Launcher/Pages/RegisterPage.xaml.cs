@@ -35,7 +35,21 @@ namespace Requiem_Network_Launcher
                 LoadingSpinner.Visibility = Visibility.Visible;
             }));
 
-            Register();
+            if (RegisterPasswordBox.Password.Any(c=>!Char.IsLetterOrDigit(c) || !Char.IsWhiteSpace(c)))
+            {
+                Dispatcher.Invoke((Action)(() =>
+                {
+                    RegisterButton.Visibility = Visibility.Visible;
+                    BackToLoginButton.Visibility = Visibility.Visible;
+                    LoadingSpinner.Visibility = Visibility.Hidden;
+                    RegisterNotificationBox.Text = "Password cannot contain special characters or white space.\nPlease try again.";
+                    RegisterNotificationBox.Foreground = new SolidColorBrush(Colors.Red);
+                }));
+            }
+            else
+            {
+                Register();
+            }
         }
 
         private void BackToLoginButton_Click(object sender, RoutedEventArgs e)
@@ -135,14 +149,6 @@ namespace Requiem_Network_Launcher
                                 RegisterNotificationBox.Foreground = new SolidColorBrush(Colors.Red);
                             }));
                         }
-                    }
-                    else if (responseMess.Contains("Invalid request"))
-                    {
-                        Dispatcher.Invoke((Action)(() =>
-                        {
-                            RegisterNotificationBox.Text = "Password is not valid.\nPlease choose a valid password.";
-                            RegisterNotificationBox.Foreground = new SolidColorBrush(Colors.Red);
-                        }));
                     }
                 }
             }

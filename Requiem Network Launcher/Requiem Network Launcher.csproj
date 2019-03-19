@@ -104,6 +104,9 @@
     <Compile Include="RestartLauncherDialog.xaml.cs">
       <DependentUpon>RestartLauncherDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UpdateWarningWindow.xaml.cs">
+      <DependentUpon>UpdateWarningWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\CheckDotNetVersion.cs" />
     <Compile Include="Utils\CookieAwareWebClient.cs">
       <SubType>Component</SubType>
@@ -123,6 +126,10 @@
     <Compile Include="Utils\SingleInstance.cs" />
     <Compile Include="Utils\UserInfoRegistry.cs" />
     <Page Include="RestartLauncherDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UpdateWarningWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
