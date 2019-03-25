@@ -51,7 +51,7 @@ namespace Requiem_Network_Launcher
                 PullRSSFeed("http://requiemnetwork.com/forum/44-server-news.xml/", "http://requiemnetwork.com/forum/44-server-news/");
             }).Start();
             
-            System.Timers.Timer aTimer = new System.Timers.Timer(300000); // 300000 = 5 mins
+            System.Timers.Timer aTimer = new System.Timers.Timer(600000); // (ms) 600000 = 10 mins
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
             aTimer.Enabled = true;
