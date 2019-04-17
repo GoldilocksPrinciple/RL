@@ -18,6 +18,7 @@ namespace Requiem_Network_Launcher
     /// </summary>
     public partial class MainWindow
     {
+        #region Global variables
         public string rootDirectory;
         public string dllPath;
         public string processPath;
@@ -28,6 +29,7 @@ namespace Requiem_Network_Launcher
         public string launcherInfoPath;
         public bool waitingForRestart = false;
         private NotifyIcon _nIcon;
+        #endregion
 
         #region Constructor
         public MainWindow()

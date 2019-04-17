@@ -68,7 +68,7 @@ namespace Requiem_Network_Launcher
                                System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             //Handling the exception within the UnhandledException handler.
-            MessageBox.Show(e.Exception.Message, "Error",
+            MessageBox.Show(e.Exception.Message, "Requiem - Error",
                                     MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
@@ -76,7 +76,7 @@ namespace Requiem_Network_Launcher
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Exception ex = e.ExceptionObject as Exception;
-            MessageBox.Show(ex.Message, "Unexpected Error Occured",
+            MessageBox.Show(ex.Message, "Requiem - Unexpected Error Occured",
                             MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }

@@ -25,8 +25,11 @@ namespace Requiem_Network_Launcher
     /// </summary>
     public partial class LoginPage : Page
     {
+        #region Global variables
         System.Net.CookieContainer myCookies = new System.Net.CookieContainer();
+        #endregion
 
+        #region Constructor
         public LoginPage()
         {
             InitializeComponent();
@@ -59,6 +62,7 @@ namespace Requiem_Network_Launcher
                 mainWindow.LogoutButton.Content = "REGISTER";
             }));
         }
+        #endregion
 
         #region Login function
         /// <summary>
@@ -198,6 +202,9 @@ namespace Requiem_Network_Launcher
         #endregion
 
         #region Auto login function
+        /// <summary>
+        /// Auto login if found user's credential
+        /// </summary>
         private void AutoLogin()
         {
             if (LoginUsernameBox.Text != "")
@@ -222,6 +229,9 @@ namespace Requiem_Network_Launcher
         #endregion
 
         #region Fill user info on init
+        /// <summary>
+        /// Auto fill user's credential on start
+        /// </summary>
         private void FillUserInfo()
         {
             if (UserInfoRegistry.Username != "")
@@ -271,6 +281,13 @@ namespace Requiem_Network_Launcher
         #endregion
 
         #region Password encryption using Rijndael algorithm
+        /// <summary>
+        /// Password encryption
+        /// </summary>
+        /// <param name="plainText"></param>
+        /// <param name="Key"></param>
+        /// <param name="IV"></param>
+        /// <returns></returns>
         static byte[] EncryptStringToBytes(string plainText, byte[] Key, byte[] IV)
         {
             // Check arguments.
@@ -313,6 +330,13 @@ namespace Requiem_Network_Launcher
         #endregion
 
         #region Password decryption using Rijndael algorithm
+        /// <summary>
+        /// Password decryption
+        /// </summary>
+        /// <param name="cipherText"></param>
+        /// <param name="Key"></param>
+        /// <param name="IV"></param>
+        /// <returns></returns>
         static string DecryptStringFromBytes(byte[] cipherText, byte[] Key, byte[] IV)
         {
             // Check arguments.
@@ -360,6 +384,11 @@ namespace Requiem_Network_Launcher
         #endregion
         
         #region ENTER key pressed event handlers
+        /// <summary>
+        /// Handle ENTER key pressed event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LoginUsernameBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)

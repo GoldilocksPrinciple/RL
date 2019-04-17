@@ -21,6 +21,7 @@ namespace Requiem_Network_Launcher
     /// </summary>
     public partial class RegisterPage : Page
     {
+        #region Constructor
         public RegisterPage()
         {
             InitializeComponent();
@@ -47,6 +48,7 @@ namespace Requiem_Network_Launcher
                 mainWindow.LogoutButton.Content = "LOGIN";
             }));
         }
+        #endregion
 
         #region Register Function
         /// <summary>
