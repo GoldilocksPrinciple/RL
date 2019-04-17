@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Net.Http;
+using log4net;
 
 namespace Requiem_Network_Launcher
 {
@@ -21,14 +14,21 @@ namespace Requiem_Network_Launcher
     /// </summary>
     public partial class RegisterPage : Page
     {
+        #region Global variables
+        private MainWindow mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #endregion
+
         #region Constructor
         public RegisterPage()
         {
             InitializeComponent();
+            log4net.Config.XmlConfigurator.Configure();
         }
 
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Register button clicked.");
             Dispatcher.Invoke((Action)(() =>
             {
                 RegisterButton.Visibility = Visibility.Hidden;
@@ -42,7 +42,6 @@ namespace Requiem_Network_Launcher
         private void BackToLoginButton_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new LoginPage());
-            var mainWindow = Application.Current.MainWindow as MainWindow;
             Dispatcher.Invoke((Action)(() =>
             {
                 mainWindow.LogoutButton.Content = "LOGIN";
@@ -56,6 +55,8 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void Register()
         {
+            log.Info("Sending register request.");
+
             HttpClient _client = new HttpClient();
 
             try
@@ -78,6 +79,7 @@ namespace Requiem_Network_Launcher
 
                 if (response.IsSuccessStatusCode == true)
                 {
+                    log.Info("Register successfully!");
                     Dispatcher.Invoke((Action)(() =>
                     {
                         RegisterButton.Visibility = Visibility.Visible;
@@ -152,7 +154,8 @@ namespace Requiem_Network_Launcher
             {
                 if (e is HttpRequestException)
                 {
-                    System.Windows.MessageBox.Show(e.Message, "Connection error");
+                    System.Windows.MessageBox.Show(e.Message, "Requiem - Connection error");
+                    log.Error(e.ToString());
 
                     Dispatcher.Invoke((Action)(() =>
                     {
@@ -162,7 +165,8 @@ namespace Requiem_Network_Launcher
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show(e.Message, "Connection error");
+                    System.Windows.MessageBox.Show(e.Message, "Requiem - Connection error");
+                    log.Error(e.ToString());
                     Dispatcher.Invoke((Action)(() =>
                     {
                         RegisterNotificationBox.Text = "An unexpected error happened!\nPlease contact staff for more help.";

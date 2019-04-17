@@ -1,22 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Net.Http;
-using System.Threading;
 using System.Security.Cryptography;
 using System.IO;
-using System.Text.RegularExpressions;
+using log4net;
 
 namespace Requiem_Network_Launcher
 {
@@ -27,12 +19,15 @@ namespace Requiem_Network_Launcher
     {
         #region Global variables
         System.Net.CookieContainer myCookies = new System.Net.CookieContainer();
+        private MainWindow mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constructor
         public LoginPage()
         {
             InitializeComponent();
+            log4net.Config.XmlConfigurator.Configure();
             FillUserInfo();
         }
 
@@ -43,6 +38,7 @@ namespace Requiem_Network_Launcher
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Login button clicked.");
             Dispatcher.Invoke((Action)(() =>
             {
                 LoginButton.Visibility = Visibility.Hidden;
@@ -55,8 +51,8 @@ namespace Requiem_Network_Launcher
 
         private void CreateAccountButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Create account button clicked.");
             this.NavigationService.Navigate(new RegisterPage());
-            var mainWindow = Application.Current.MainWindow as MainWindow;
             Dispatcher.Invoke((Action)(() =>
             {
                 mainWindow.LogoutButton.Content = "REGISTER";
@@ -70,6 +66,8 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void Login()
         {
+            log.Info("Sending login request...");
+
             HttpClient _client = new HttpClient();
 
             try
@@ -97,8 +95,10 @@ namespace Requiem_Network_Launcher
                 // reponse code 200 = OK, username + password are correct
                 if (responseCode == "200")
                 {
+                    log.Info("Login successfully!");
                     if (RememberMeCheckBox.IsChecked == true)
                     {
+                        log.Info("Encrypting user credential.");
                         try
                         {
                             using (RijndaelManaged myRijndael = new RijndaelManaged())
@@ -120,10 +120,12 @@ namespace Requiem_Network_Launcher
                         catch (Exception e)
                         {
                             Console.WriteLine("Error: {0}", e.Message);
+                            log.Error(e.ToString());
                         }
                     }
                     else
                     {
+                        log.Info("Saving user credential.");
                         byte[] pswd = new byte[0];
                         byte[] iv = new byte[0];
                         UserInfoRegistry.SaveUserLoginInfo("", pswd, iv);
@@ -134,8 +136,7 @@ namespace Requiem_Network_Launcher
                     UserInfoRegistry.LoginToken = responseToken.Replace(@"\", ""); // "\/" is not valid. Correct format should be "/" only, "\" acts as an escape character
                     
                     this.NavigationService.Navigate(new MainGamePage(), myCookies);
-
-                    var mainWindow = Application.Current.MainWindow as MainWindow;
+                    
                     Dispatcher.Invoke((Action)(() =>
                     {
                         LoginButton.Visibility = Visibility.Visible;
@@ -181,6 +182,7 @@ namespace Requiem_Network_Launcher
                 if (e is HttpRequestException)
                 {
                     System.Windows.MessageBox.Show(e.Message, "Connection error");
+                    log.Error(e.ToString());
 
                     Dispatcher.Invoke((Action)(() =>
                     {
@@ -191,6 +193,7 @@ namespace Requiem_Network_Launcher
                 else
                 {
                     System.Windows.MessageBox.Show(e.Message, "Error");
+                    log.Error(e.ToString());
                     Dispatcher.Invoke((Action)(() =>
                     {
                         LoginNotificationBox.Text = "An unexpected error occurred!\nPlease check your internet connection first.\nContact staff for more help.";
@@ -207,6 +210,8 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private void AutoLogin()
         {
+            log.Info("Auto login.");
+
             if (LoginUsernameBox.Text != "")
             {
                 Console.WriteLine(LoginUsernameBox.Text);
@@ -234,6 +239,7 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private void FillUserInfo()
         {
+            log.Info("Auto fill user login detail.");
             if (UserInfoRegistry.Username != "")
             {
                 string Password = "";
@@ -254,6 +260,7 @@ namespace Requiem_Network_Launcher
                 catch (Exception e1)
                 {
                     Console.WriteLine("Error: {0}", e1.Message);
+                    log.Error(e1.ToString());
                 }
 
                 Dispatcher.Invoke((Action)(() =>

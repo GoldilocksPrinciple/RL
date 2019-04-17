@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using MahApps.Metro;
 using Microsoft.Shell;
+using log4net;
 
 namespace Requiem_Network_Launcher
 {
@@ -12,10 +13,13 @@ namespace Requiem_Network_Launcher
     public partial class App : Application, ISingleInstanceApp
     {
         private const string Unique = "Requiem_Network_Launcher_UwU";
+        private static readonly ILog log = LogManager.GetLogger(typeof(App));
 
         [STAThread]
         public static void Main()
         {
+            log4net.Config.XmlConfigurator.Configure();
+
             if (SingleInstance<App>.InitializeAsFirstInstance(Unique))
             {
 
@@ -45,6 +49,8 @@ namespace Requiem_Network_Launcher
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            log.Info("=============  Started Logging  =============");
+
             AppDomain.CurrentDomain.UnhandledException +=
                   new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
@@ -60,13 +66,15 @@ namespace Requiem_Network_Launcher
             ThemeManager.ChangeAppStyle(Application.Current,
                                         ThemeManager.GetAccent("CustomTheme"),
                                         theme.Item1);
-
+            
             base.OnStartup(e);
         }
 
         private void Application_DispatcherUnhandledException(object sender,
                                System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
+            log.Error("Unexpected error");
+            log.Error(e.ToString());
             //Handling the exception within the UnhandledException handler.
             MessageBox.Show(e.Exception.Message, "Requiem - Error",
                                     MessageBoxButton.OK, MessageBoxImage.Error);
@@ -76,6 +84,8 @@ namespace Requiem_Network_Launcher
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Exception ex = e.ExceptionObject as Exception;
+            log.Error("Unexpected error");
+            log.Error(ex.ToString());
             MessageBox.Show(ex.Message, "Requiem - Unexpected Error Occured",
                             MessageBoxButton.OK, MessageBoxImage.Error);
         }

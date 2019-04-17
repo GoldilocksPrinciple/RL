@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Bleak;
@@ -19,6 +18,7 @@ using System.Xml;
 using System.ServiceModel.Syndication;
 using System.ComponentModel;
 using System.Timers;
+using log4net;
 
 namespace Requiem_Network_Launcher
 {
@@ -41,6 +41,8 @@ namespace Requiem_Network_Launcher
         private bool updating = false;
         private CookieContainer myCookies = new System.Net.CookieContainer();
         private Stopwatch sw = new Stopwatch();
+        private MainWindow mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constructor
@@ -50,6 +52,7 @@ namespace Requiem_Network_Launcher
         public MainGamePage()
         {
             InitializeComponent();
+            log4net.Config.XmlConfigurator.Configure();
             CheckFilesPath();
             new Thread(delegate ()
             {
@@ -60,7 +63,7 @@ namespace Requiem_Network_Launcher
                 }
                 catch (WebException e )
                 {
-                    Console.WriteLine(e.Message);
+                    log.Error(e.ToString());
                 }
                 
             }).Start();
@@ -82,10 +85,9 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void StartGame()
         {
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+            log.Info("Start game button clicked.");
 
             _vindictus = new Process();
-
             try
             {
                 _vindictus.EnableRaisingEvents = true;
@@ -135,7 +137,7 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void CheckGameVersion()
         {
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+            log.Info("Checking game version.");
 
             // update small version info at bottom left corner
             Dispatcher.Invoke((Action)(() =>
@@ -190,6 +192,7 @@ namespace Requiem_Network_Launcher
                         ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
                         DownloadInfoBox.Text = "Your game is up-to-date!";
                         DownloadInfoBox.Foreground = new SolidColorBrush(Colors.LawnGreen);
+                        log.Info("Game is up-to-date.");
 
                         if (playing == false)
                         {
@@ -212,6 +215,7 @@ namespace Requiem_Network_Launcher
                 if (e is HttpRequestException)
                 {
                     System.Windows.MessageBox.Show(e.Message, "Requiem - Connection error");
+                    log.Error(e.ToString());
 
                     Dispatcher.Invoke((Action)(() =>
                     {
@@ -223,6 +227,7 @@ namespace Requiem_Network_Launcher
                 else
                 {
                     System.Windows.MessageBox.Show(e.Message, "Error");
+                    log.Error(e.ToString());
 
                     Dispatcher.Invoke((Action)(() =>
                     {
@@ -241,8 +246,8 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void Update()
         {
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-            
+            log.Info("Updating game.");
+
             // update ui for downloading
             Dispatcher.Invoke((Action)(() =>
             {
@@ -358,17 +363,15 @@ namespace Requiem_Network_Launcher
             catch (Exception e)
             {
                 System.Windows.MessageBox.Show(e.Message, "Error");
+                log.Error(e.ToString());
             }
         }
 
         private void WebClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
-
             // Stop stopwatch
             sw.Stop();
-
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-
+            
             // get the size of the downloaded file
             long length = new System.IO.FileInfo(_updatePath).Length;
 
@@ -380,6 +383,8 @@ namespace Requiem_Network_Launcher
             else // if the file is valid, extract it
             {
                 _continueSign = "stop";
+                log.Info("Finish downloading update.");
+                log.Info("Extracting files.");
 
                 Dispatcher.Invoke((Action)(() =>
                 {
@@ -413,6 +418,7 @@ namespace Requiem_Network_Launcher
 
                     Dispatcher.BeginInvoke((Action)(() =>
                     {
+                        log.Info("All file extracted successfully!");
                         CheckGameVersion();
                     }));
                 }).Start();
@@ -505,8 +511,8 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void CheckForLauncherUpdate()
         {
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-
+            log.Info("Checking for launcher update.");
+            
             var launcherInfoFile = System.IO.File.ReadAllText(mainWindow.launcherInfoPath);
             var launcherInfoSplit = launcherInfoFile.Split('=');
             var launcherInfoLocal = launcherInfoSplit[1];
@@ -534,6 +540,7 @@ namespace Requiem_Network_Launcher
             catch (Exception e)
             {
                 System.Windows.MessageBox.Show(e.Message, "Requiem - Connection error");
+                log.Error(e.ToString());
             }
 
         }
@@ -556,7 +563,7 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void UpdateLauncher()
         {
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+            log.Info("Downloading new launcher.");
 
             _launcherUpdatePath = System.IO.Path.Combine(mainWindow.rootDirectory, "update.exe");
 
@@ -588,13 +595,13 @@ namespace Requiem_Network_Launcher
             catch (Exception e1)
             {
                 System.Windows.MessageBox.Show(e1.Message, "Checking for launcher update failed");
-
+                log.Error(e1.ToString());
             }
         }
 
         private void WebClient_DownloadFileCompleted1(object sender, AsyncCompletedEventArgs e)
         {
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+            log.Info("Finished downloading new launcher!");
             Dispatcher.Invoke((Action)(() =>
             {
                 // display updating status notice
@@ -630,6 +637,7 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private void LoginForum()
         {
+            log.Info("Login forum.");
             var test = "name='csrfKey' value='([0-9A-Za-z]+)'".Replace("'", "\"");
             HttpWebResponse myResponse = CustomHttpMethod.Get("http://requiemnetwork.com/login/", "http://requiemnetwork.com/login/", ref myCookies);
             string pageSrc;
@@ -662,6 +670,7 @@ namespace Requiem_Network_Launcher
 
         private void PullRSSFeed(string url, string reference)
         {
+            log.Info("Pulling RSS feed.");
             Dispatcher.Invoke((Action)(() =>
             {
                 LoadingSpinner.Visibility = Visibility.Visible;
@@ -699,6 +708,7 @@ namespace Requiem_Network_Launcher
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                log.Error(e.ToString());
             }
             
         }
@@ -732,7 +742,7 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private void CheckFilesPath()
         {
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
+            log.Info("Checking files path.");
 
             UpdateWarningWindow dialog = new UpdateWarningWindow();
 
@@ -853,6 +863,7 @@ namespace Requiem_Network_Launcher
 
         private void NewsButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("News button clicked.");
             MenuItemSetTransitions(0);
             new Thread(delegate ()
             {
@@ -862,6 +873,7 @@ namespace Requiem_Network_Launcher
 
         private void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Patch notes button clicked.");
             MenuItemSetTransitions(1);
             new Thread(delegate ()
             {
@@ -871,14 +883,15 @@ namespace Requiem_Network_Launcher
 
         private void CheckForUpdatesButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Check for update button clicked.");
             MenuItemSetTransitions(2);
             CheckFilesPath();
         }
 
         private void DropRateCalculatorButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Drop rate calculator button clicked.");
             MenuItemSetTransitions(3);
-            var mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
 
             if (!File.Exists(mainWindow.dropRateCalculatorPath))
             {
@@ -905,11 +918,13 @@ namespace Requiem_Network_Launcher
 
         private void DyeSystemButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Dye system button clicked.");
             System.Diagnostics.Process.Start("http://requiemnetwork.com/dye");
         }
 
         private void WebsiteButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Website button clicked.");
             System.Diagnostics.Process.Start("http://requiemnetwork.com");
         }
 

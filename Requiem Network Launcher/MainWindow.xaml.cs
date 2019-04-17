@@ -10,6 +10,7 @@ using System.Windows.Interop;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
+using log4net;
 
 namespace Requiem_Network_Launcher
 {
@@ -29,12 +30,14 @@ namespace Requiem_Network_Launcher
         public string launcherInfoPath;
         public bool waitingForRestart = false;
         private NotifyIcon _nIcon;
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constructor
         public MainWindow()
         {
             InitializeComponent();
+            log4net.Config.XmlConfigurator.Configure();
             this.SourceInitialized += Window_SourceInitialized;
             NotifyIconSetup();
         }
@@ -56,6 +59,7 @@ namespace Requiem_Network_Launcher
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Logout button clicked.");
             Logout();
         }
         #endregion
@@ -63,6 +67,7 @@ namespace Requiem_Network_Launcher
         #region Check user info: DotNet version, hwid, user login info, file path
         private void CheckUserInfo()
         {
+            log.Info("Checking user info...");
             CheckDotNetVersion.Get45PlusFromRegistry();
 
             if (CheckDotNetVersion.DotnetKey != "Henri")
@@ -97,6 +102,7 @@ namespace Requiem_Network_Launcher
             catch (ArgumentException e)
             {
                 System.Windows.MessageBox.Show(e.Message);
+                log.Error(e.ToString());
             }
         }
         #endregion
@@ -138,9 +144,9 @@ namespace Requiem_Network_Launcher
                     dropCalculator.StartInfo.FileName = dropRateCalculatorPath;
                     dropCalculator.Start();
                 }
-                catch (Exception)
+                catch (Exception e1)
                 {
-                    System.Windows.MessageBox.Show("There is already an instance of the game running...", "Error");
+                    System.Windows.MessageBox.Show(e1.Message, "Error");
                 }
             }
         }
@@ -177,6 +183,7 @@ namespace Requiem_Network_Launcher
         
         private void MetroWindow_Closed(object sender, EventArgs e)
         {
+            log.Info("Closing launcher.\n");
             _nIcon.Visible = false;
             Environment.Exit(0);
         }
