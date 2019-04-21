@@ -58,6 +58,16 @@ namespace Requiem_Network_Launcher
                 mainWindow.LogoutButton.Content = "REGISTER";
             }));
         }
+
+        private void ForgotPassword_Click(object sender, RoutedEventArgs e)
+        {
+            log.Info("Forgot password button clicked.");
+            this.NavigationService.Navigate(new PasswordRecoveryPage());
+            Dispatcher.Invoke((Action)(() =>
+            {
+                mainWindow.LogoutButton.Content = "PASSWORD RECOVERY";
+            }));
+        }
         #endregion
 
         #region Login function
@@ -77,7 +87,7 @@ namespace Requiem_Network_Launcher
 
                 var values = new Dictionary<string, string>
                 {
-                    { "username", LoginUsernameBox.Text },
+                    { "username", LoginUsernameBox.Text     },
                     { "password", LoginPasswordBox.Password }
                 };
                 var content = new FormUrlEncodedContent(values);
@@ -414,6 +424,39 @@ namespace Requiem_Network_Launcher
             }
         }
         #endregion
-        
+
+        private async void TestButton_Click(object sender, RoutedEventArgs e)
+        {
+            HttpClient _client = new HttpClient();
+
+            try
+            {
+                // set base address for request
+                _client.BaseAddress = new Uri("http://142.44.142.178");
+
+                var values = new Dictionary<string, string>
+                {
+                    { "username", "henrivq" },
+                    { "email", "henry.mn2412@gmail.com"},
+                    { "newpassword", "abcxyz" }
+                };
+                var content = new FormUrlEncodedContent(values);
+
+                // send POST request with username and password and get the response from server
+                var response = await _client.PostAsync("/api/recovery.php?username=" + "dustlinger"
+                                                                  + "&email=" + "henry.mn2412@gmail.com"
+                                                                  + "&newpassword=" + "abcxyz" , content);
+
+                // convert response from server to string 
+                var responseString = await response.Content.ReadAsStringAsync();
+                var responseStringSplit = responseString.Split(',');
+                var responseCode = responseStringSplit[0].Split(':')[1]; // split string to "code" and code number
+                var responseMess = responseStringSplit[1].Split('"')[3]; // split string to "message", ":", and message content
+            }
+            catch (Exception e1)
+            {
+                Console.WriteLine(e1.ToString());
+            }
+        }
     }
 }

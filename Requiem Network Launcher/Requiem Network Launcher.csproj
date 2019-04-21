@@ -110,6 +110,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Pages\PasswordRecoveryPage.xaml.cs">
+      <DependentUpon>PasswordRecoveryPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RestartLauncherDialog.xaml.cs">
       <DependentUpon>RestartLauncherDialog.xaml</DependentUpon>
     </Compile>
@@ -134,6 +137,10 @@
     <Compile Include="Utils\HardwareID.cs" />
     <Compile Include="Utils\SingleInstance.cs" />
     <Compile Include="Utils\UserInfoRegistry.cs" />
+    <Page Include="Pages\PasswordRecoveryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="RestartLauncherDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

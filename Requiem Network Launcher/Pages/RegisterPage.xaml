@@ -22,7 +22,7 @@
             <TextBox x:Name="RegisterEmailBox" KeyDown="RegisterEmailBox_KeyDown" MaxLines="1" Height="35" Margin="0,98,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="#BFFFFFFF" FontFamily="Century Gothic" BorderBrush="Black" FontSize="20"/>
             <Label Content="Password:" Height="30" Margin="-4,138,4,0" VerticalAlignment="Top" Foreground="White" FontFamily="Century Gothic" FontSize="18" VerticalContentAlignment="Center"/>
             <PasswordBox x:Name="RegisterPasswordBox" KeyDown="RegisterPasswordBox_KeyDown" Height="35" PasswordChar="•" VerticalAlignment="Top" VerticalContentAlignment="Center" ToolTip="Alphabetical characters and numbers only.&#x0a;Special characters like #, %, etc. are not allowed." Background="#BFFFFFFF" BorderBrush="Black" Margin="0,168,0,0" FontSize="20" FontWeight="Bold"/>
-            <TextBlock x:Name="RegisterNotificationBox" HorizontalAlignment="Left" Margin="0,213,0,-99" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="304" Height="91" FontFamily="Century Gothic" FontWeight="Bold" FontSize="18"/>
+            <TextBlock x:Name="RegisterNotificationBox" HorizontalAlignment="Left" Margin="0,214,0,-99" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="304" Height="90" FontFamily="Century Gothic" FontWeight="Bold" FontSize="18"/>
         </Grid>
     </Grid>
 </Page>

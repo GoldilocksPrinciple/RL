@@ -12,6 +12,9 @@
         <local:LoadingSpinner x:Name="LoadingSpinner" EllipseSize="20" HorizontalAlignment="Center" Margin="40,410,54,0" Height="60" Width="60" Visibility="Hidden"/>
         <Button x:Name="LoginButton" Content="LOGIN" Click="LoginButton_Click" Background="#BFFFFFFF" FontSize="22" FontFamily="Century Gothic" HorizontalContentAlignment="Center" BorderBrush="{x:Null}" Height="60" VerticalAlignment="Top" Margin="52,500,52,0" FontWeight="Normal"/>
         <Button x:Name="CreateAccountButton" Content="CREATE AN ACCOUNT" Click="CreateAccountButton_Click" Background="#BFFFFFFF" FontSize="22" FontFamily="Century Gothic" HorizontalContentAlignment="Center" BorderBrush="{x:Null}" Margin="52,565,52,0" Height="60" VerticalAlignment="Top" FontWeight="Normal"/>
+        <TextBlock HorizontalAlignment="Left" Margin="52,464,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="31" Width="304" FontSize="18" TextAlignment="Center">
+            <Hyperlink Foreground="White" Click="ForgotPassword_Click">Forgot your password?</Hyperlink>
+        </TextBlock>
         <Grid Height="132" Margin="52,52,52,0" VerticalAlignment="Top">
             <Grid.Background>
                 <ImageBrush ImageSource="/Resources/LauncherLogo.png"/>
@@ -23,7 +26,7 @@
             <Label Content="Password:" Height="30" Margin="-4,68,4,0" VerticalAlignment="Top" Foreground="White" FontFamily="Century Gothic" FontSize="18" VerticalContentAlignment="Center"/>
             <PasswordBox x:Name="LoginPasswordBox" Height="35" PasswordChar="•" VerticalAlignment="Top" VerticalContentAlignment="Center" ToolTip="" Background="#BFFFFFFF" BorderBrush="Black" Margin="0,98,0,0" FontSize="20" KeyDown="LoginPasswordBox_KeyDown"/>
             <CheckBox x:Name="RememberMeCheckBox" IsChecked="True" Content="Keep me logged in" HorizontalAlignment="Left" Margin="0,152,0,0" VerticalAlignment="Top" Foreground="White" BorderBrush="Black" Background="#BFFFFFFF" Width="300" FontSize="16" FontFamily="Century Gothic" VerticalContentAlignment="Center"/>
-            <TextBlock x:Name="LoginNotificationBox" Margin="0,187,0,-121" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="116" FontFamily="Century Gothic" FontWeight="Bold" FontSize="18" HorizontalAlignment="Right" Width="304"/>
+            <TextBlock x:Name="LoginNotificationBox" Margin="0,187,0,-82" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="77" FontFamily="Century Gothic" FontWeight="Bold" FontSize="18" HorizontalAlignment="Right" Width="304"/>
         </Grid>
     </Grid>
 </Page>

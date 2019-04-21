@@ -66,9 +66,9 @@ namespace Requiem_Network_Launcher
 
                 var values = new Dictionary<string, string>
                 {
-                    { "username", RegisterUsernameBox.Text },
+                    { "username", RegisterUsernameBox.Text     },
                     { "password", RegisterPasswordBox.Password },
-                    { "email"   , RegisterEmailBox.Text    },
+                    { "email"   , RegisterEmailBox.Text        }
                 };
                 var content = new FormUrlEncodedContent(values);
                 var response = await _client.PostAsync("/api/registration.php?username=" + RegisterUsernameBox.Text
@@ -144,7 +144,7 @@ namespace Requiem_Network_Launcher
                     {
                         Dispatcher.Invoke((Action)(() =>
                         {
-                            RegisterNotificationBox.Text = "Password is not valid.\nPlease choose a valid password.";
+                            RegisterNotificationBox.Text = "Invalid request " + responseStringSplit[2];
                             RegisterNotificationBox.Foreground = new SolidColorBrush(Colors.Red);
                         }));
                     }
