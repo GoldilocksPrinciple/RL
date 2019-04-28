@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using log4net;
+using NLog;
 
 namespace Requiem_Network_Launcher
 {
@@ -9,12 +9,11 @@ namespace Requiem_Network_Launcher
     /// </summary>
     public partial class UpdateWarningWindow
     {
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Logger log = NLog.LogManager.GetLogger("AppLog");
 
         public UpdateWarningWindow()
         {
             InitializeComponent();
-            log4net.Config.XmlConfigurator.Configure();
         }
 
         private void AgreeUpdateButton_Click(object sender, RoutedEventArgs e)

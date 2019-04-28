@@ -18,7 +18,7 @@ using System.Xml;
 using System.ServiceModel.Syndication;
 using System.ComponentModel;
 using System.Timers;
-using log4net;
+using NLog;
 
 namespace Requiem_Network_Launcher
 {
@@ -42,7 +42,7 @@ namespace Requiem_Network_Launcher
         private CookieContainer myCookies = new System.Net.CookieContainer();
         private Stopwatch sw = new Stopwatch();
         private MainWindow mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Logger log = NLog.LogManager.GetLogger("AppLog");
         #endregion
 
         #region Constructor
@@ -52,7 +52,6 @@ namespace Requiem_Network_Launcher
         public MainGamePage()
         {
             InitializeComponent();
-            log4net.Config.XmlConfigurator.Configure();
             CheckFilesPath();
             new Thread(delegate ()
             {
@@ -97,8 +96,9 @@ namespace Requiem_Network_Launcher
                 _vindictus.Start();
                 playing = true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                log.Error(e.ToString());
                 System.Windows.MessageBox.Show("There is already an instance of the game running...", "Error");
             }
 
@@ -149,7 +149,6 @@ namespace Requiem_Network_Launcher
                 // disable start game button when check for game version
                 StartGameButton.Content = "UPDATING";
                 StartGameButton.IsEnabled = false;
-                StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
             }));
 
             // read info from version.txt file in main game folder
@@ -199,7 +198,6 @@ namespace Requiem_Network_Launcher
                             // re-enable start game button for player
                             StartGameButton.Content = "START GAME";
                             StartGameButton.IsEnabled = true;
-                            StartGameButton.Foreground = new SolidColorBrush(Colors.Black);
                         }
                         else
                         {
@@ -258,7 +256,6 @@ namespace Requiem_Network_Launcher
                 // disable start game button when check for game version
                 StartGameButton.Content = "UPDATING";
                 StartGameButton.IsEnabled = false;
-                StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
 
             }));
 
@@ -447,7 +444,6 @@ namespace Requiem_Network_Launcher
                 {
                     // display updating status notice
                     StartGameButton.IsEnabled = false;
-                    StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
                     ProgressDetails.Visibility = Visibility.Visible;
                     ProgressBar.Visibility = Visibility.Visible;
                     ProgressBar.Value = totalSize;
@@ -539,7 +535,6 @@ namespace Requiem_Network_Launcher
             }
             catch (Exception e)
             {
-                System.Windows.MessageBox.Show(e.Message, "Requiem - Connection error");
                 log.Error(e.ToString());
             }
 
@@ -578,7 +573,6 @@ namespace Requiem_Network_Launcher
                 // disable start game button when check for game version
                 StartGameButton.Content = "UPDATING";
                 StartGameButton.IsEnabled = false;
-                StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
             }));
 
             try
@@ -612,7 +606,6 @@ namespace Requiem_Network_Launcher
                 // disable start game button when check for game version
                 StartGameButton.Content = "DOWNLOADED";
                 StartGameButton.IsEnabled = false;
-                StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
             }));
             mainWindow.Hide();
             RestartLauncherDialog dialog = new RestartLauncherDialog();
@@ -779,9 +772,7 @@ namespace Requiem_Network_Launcher
                 {
                     DownloadInfoBox.Text = "Missing files.\nContact staff for more help.";
                     DownloadInfoBox.Foreground = new SolidColorBrush(Colors.Red);
-
                     StartGameButton.IsEnabled = false;
-                    StartGameButton.Foreground = new SolidColorBrush(Colors.Silver);
                 }));
             }
             else

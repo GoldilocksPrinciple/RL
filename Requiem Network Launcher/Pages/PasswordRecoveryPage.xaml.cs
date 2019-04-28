@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Net.Http;
-using log4net;
+using NLog;
 
 namespace Requiem_Network_Launcher
 {
@@ -16,7 +16,7 @@ namespace Requiem_Network_Launcher
     {
         #region Global variables
         private MainWindow mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Logger log = NLog.LogManager.GetLogger("AppLog");
         private bool _requestSent = false;
         #endregion
 
@@ -24,7 +24,6 @@ namespace Requiem_Network_Launcher
         public PasswordRecoveryPage()
         {
             InitializeComponent();
-            log4net.Config.XmlConfigurator.Configure();
         }
 
         private void RecoverySubmitButton_Click(object sender, RoutedEventArgs e)

@@ -8,7 +8,7 @@ using System.Windows.Media;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.IO;
-using log4net;
+using NLog;
 
 namespace Requiem_Network_Launcher
 {
@@ -20,14 +20,13 @@ namespace Requiem_Network_Launcher
         #region Global variables
         System.Net.CookieContainer myCookies = new System.Net.CookieContainer();
         private MainWindow mainWindow = System.Windows.Application.Current.MainWindow as MainWindow;
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Logger log = NLog.LogManager.GetLogger("AppLog");
         #endregion
 
         #region Constructor
         public LoginPage()
         {
             InitializeComponent();
-            log4net.Config.XmlConfigurator.Configure();
             FillUserInfo();
         }
 
@@ -191,22 +190,23 @@ namespace Requiem_Network_Launcher
             {
                 if (e is HttpRequestException)
                 {
-                    System.Windows.MessageBox.Show(e.Message, "Connection error");
                     log.Error(e.ToString());
-
+                    System.Windows.MessageBox.Show(e.Message, "Connection error");
+                    
                     Dispatcher.Invoke((Action)(() =>
                     {
-                        LoginNotificationBox.Text = "Login failed!\nPlease check your internet connection first.\nContact staff for more help.";
+                        LoginNotificationBox.Text = "Login failed!\nPlease check your internet connection first.";
                         LoginNotificationBox.Foreground = new SolidColorBrush(Colors.Red);
                     }));
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show(e.Message, "Error");
                     log.Error(e.ToString());
+                    System.Windows.MessageBox.Show(e.Message, "Error");
+                    
                     Dispatcher.Invoke((Action)(() =>
                     {
-                        LoginNotificationBox.Text = "An unexpected error occurred!\nPlease check your internet connection first.\nContact staff for more help.";
+                        LoginNotificationBox.Text = "An unexpected error occurred!\nPlease check your internet connection first.";
                         LoginNotificationBox.Foreground = new SolidColorBrush(Colors.Red);
                     }));
                 }
@@ -425,38 +425,5 @@ namespace Requiem_Network_Launcher
         }
         #endregion
 
-        private async void TestButton_Click(object sender, RoutedEventArgs e)
-        {
-            HttpClient _client = new HttpClient();
-
-            try
-            {
-                // set base address for request
-                _client.BaseAddress = new Uri("http://142.44.142.178");
-
-                var values = new Dictionary<string, string>
-                {
-                    { "username", "henrivq" },
-                    { "email", "henry.mn2412@gmail.com"},
-                    { "newpassword", "abcxyz" }
-                };
-                var content = new FormUrlEncodedContent(values);
-
-                // send POST request with username and password and get the response from server
-                var response = await _client.PostAsync("/api/recovery.php?username=" + "dustlinger"
-                                                                  + "&email=" + "henry.mn2412@gmail.com"
-                                                                  + "&newpassword=" + "abcxyz" , content);
-
-                // convert response from server to string 
-                var responseString = await response.Content.ReadAsStringAsync();
-                var responseStringSplit = responseString.Split(',');
-                var responseCode = responseStringSplit[0].Split(':')[1]; // split string to "code" and code number
-                var responseMess = responseStringSplit[1].Split('"')[3]; // split string to "message", ":", and message content
-            }
-            catch (Exception e1)
-            {
-                Console.WriteLine(e1.ToString());
-            }
-        }
     }
 }

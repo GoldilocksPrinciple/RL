@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Diagnostics;
-using log4net;
+using NLog;
 
 namespace Requiem_Network_Launcher
 {
@@ -10,12 +10,11 @@ namespace Requiem_Network_Launcher
     /// </summary>
     public partial class RestartLauncherDialog 
     {
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Logger log = NLog.LogManager.GetLogger("AppLog");
 
         public RestartLauncherDialog()
         {
             InitializeComponent();
-            log4net.Config.XmlConfigurator.Configure();
         }
 
         private void RestartLauncherButton_Click(object sender, RoutedEventArgs e)

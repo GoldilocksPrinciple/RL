@@ -10,7 +10,7 @@ using System.Windows.Interop;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
-using log4net;
+using NLog;
 
 namespace Requiem_Network_Launcher
 {
@@ -30,14 +30,13 @@ namespace Requiem_Network_Launcher
         public string launcherInfoPath;
         public bool waitingForRestart = false;
         private NotifyIcon _nIcon;
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Logger log = NLog.LogManager.GetLogger("AppLog");
         #endregion
 
         #region Constructor
         public MainWindow()
         {
             InitializeComponent();
-            log4net.Config.XmlConfigurator.Configure();
             this.SourceInitialized += Window_SourceInitialized;
             NotifyIconSetup();
         }

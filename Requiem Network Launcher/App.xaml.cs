@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using MahApps.Metro;
 using Microsoft.Shell;
-using log4net;
+using NLog;
 
 namespace Requiem_Network_Launcher
 {
@@ -13,13 +13,11 @@ namespace Requiem_Network_Launcher
     public partial class App : Application, ISingleInstanceApp
     {
         private const string Unique = "Requiem_Network_Launcher_UwU";
-        private static readonly ILog log = LogManager.GetLogger(typeof(App));
+        private static Logger log = NLog.LogManager.GetLogger("AppLog");
 
         [STAThread]
         public static void Main()
         {
-            log4net.Config.XmlConfigurator.Configure();
-
             if (SingleInstance<App>.InitializeAsFirstInstance(Unique))
             {
 
