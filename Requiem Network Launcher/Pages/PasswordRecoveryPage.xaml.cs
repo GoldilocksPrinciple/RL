@@ -10,7 +10,7 @@ using NLog;
 namespace Requiem_Network_Launcher
 {
     /// <summary>
-    /// Interaction logic for RegisterPage.xaml
+    /// Interaction logic for PasswordRecoveryPage.xaml
     /// </summary>
     public partial class PasswordRecoveryPage : Page
     {
