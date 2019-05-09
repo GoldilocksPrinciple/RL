@@ -32,6 +32,7 @@ namespace Requiem_Network_Launcher
         private Process _vindictus;
         private double _updateFileSize;
         private string _updatePath;
+        private string _tempExtractedPath;
         private string _updateDownloadID;
         private string _versionTxtCheck = "yes";
         private string _continueSign = "continue";
@@ -67,10 +68,11 @@ namespace Requiem_Network_Launcher
                 
             }).Start();
             
-            System.Timers.Timer aTimer = new System.Timers.Timer(600000); // (ms) 600000 = 10 mins
-            // Hook up the Elapsed event for the timer. 
-            aTimer.Elapsed += OnTimedEvent;
-            aTimer.Enabled = true;
+            // timer for launcher version checking
+            System.Timers.Timer launcherCheckTimer = new System.Timers.Timer(600000); // (ms) 600000 = 10 mins
+            // Hook up the Elapsed event for the timer.
+            launcherCheckTimer.Elapsed += OnTimedEvent;
+            launcherCheckTimer.Enabled = true;
 
             // display updating status notice
             ProgressDetails.Visibility = Visibility.Hidden;
@@ -308,6 +310,12 @@ namespace Requiem_Network_Launcher
 
             // create temporary zip file from download
             _updatePath = System.IO.Path.Combine(mainWindow.rootDirectory, "UpdateTemporary.zip");
+            // delete old zip file if it exists
+            if (File.Exists(_updatePath))
+            {
+                File.Delete(_updatePath);
+            }
+
             //_updatePath = @"D:\test\UpdateTemp.zip";
 
             // Start stopwatch
@@ -383,6 +391,13 @@ namespace Requiem_Network_Launcher
                 log.Info("Finish downloading update.");
                 log.Info("Extracting files.");
 
+                // temporary directory for extracting files
+                _tempExtractedPath = _updatePath = System.IO.Path.Combine(mainWindow.rootDirectory, "Temp");
+                if (!Directory.Exists(_tempExtractedPath))
+                {
+                    Directory.CreateDirectory(_tempExtractedPath);
+                }
+
                 Dispatcher.Invoke((Action)(() =>
                 {
                     ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
@@ -398,7 +413,14 @@ namespace Requiem_Network_Launcher
                     {
                         zip.ExtractProgress += Zip_ExtractProgress;
                         //zip.ExtractAll(@"D:\test\", ExtractExistingFileAction.OverwriteSilently);
-                        zip.ExtractAll(mainWindow.rootDirectory, ExtractExistingFileAction.OverwriteSilently);
+                        try
+                        {
+                            zip.ExtractAll(_tempExtractedPath, ExtractExistingFileAction.OverwriteSilently);
+                        }
+                        catch (Exception e1)
+                        {
+                            Console.WriteLine(e1.Message);
+                        }
                     }
 
                     // delete the temporary zip file after finish extracting
@@ -431,6 +453,7 @@ namespace Requiem_Network_Launcher
                     // display updating status notice
                     ProgressBar.Value = System.Convert.ToInt32(100 * e.BytesTransferred / e.TotalBytesToTransfer);
                     ProgressDetails.Text = "Extracting: " + e.CurrentEntry.FileName;
+                    Console.WriteLine(e.CurrentEntry.FileName);
                 }));
             }
         }
@@ -507,8 +530,6 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private async void CheckForLauncherUpdate()
         {
-            log.Info("Checking for launcher update.");
-            
             var launcherInfoFile = System.IO.File.ReadAllText(mainWindow.launcherInfoPath);
             var launcherInfoSplit = launcherInfoFile.Split('=');
             var launcherInfoLocal = launcherInfoSplit[1];
@@ -535,7 +556,7 @@ namespace Requiem_Network_Launcher
             }
             catch (Exception e)
             {
-                log.Error(e.ToString());
+                log.Error("Check for launcher update error" + e.ToString());
             }
 
         }

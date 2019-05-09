@@ -11,6 +11,11 @@ using System.IO;
 using System.Reflection;
 using System.Diagnostics;
 using NLog;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Net.Http;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Requiem_Network_Launcher
 {
@@ -31,12 +36,22 @@ namespace Requiem_Network_Launcher
         public bool waitingForRestart = false;
         private NotifyIcon _nIcon;
         private static Logger log = NLog.LogManager.GetLogger("AppLog");
+        private List<ImageBrush> BackgroundImageBrushes = new List<ImageBrush>();
+        private int _numberOfImages;
+        private int _currentImageIndex = 0;
         #endregion
 
         #region Constructor
         public MainWindow()
         {
             InitializeComponent();
+            GetBackGroundImages();
+
+            // timer for background changing
+            System.Timers.Timer backgroundChangeTimer = new System.Timers.Timer(5000); // (ms) 5000 = 2 secs
+            backgroundChangeTimer.Elapsed += BackgroundChangeTimer_Elapsed;
+            backgroundChangeTimer.Enabled = true;
+
             this.SourceInitialized += Window_SourceInitialized;
             NotifyIconSetup();
         }
@@ -83,10 +98,10 @@ namespace Requiem_Network_Launcher
                 System.Diagnostics.Process.Start("https://dotnet.microsoft.com/download/dotnet-framework-runtime");
                 this.Close();
             }
-            
+
             HardwareID.GetHardwareID();
             UserInfoRegistry.GetUserLoginInfo();
-           
+
             // get current directory of the Launcher
             rootDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
 
@@ -154,7 +169,7 @@ namespace Requiem_Network_Launcher
         {
             System.Diagnostics.Process.Start("http://requiemnetwork.com/dye");
         }
-        
+
         private void MenuExit_Click(object sender, EventArgs e)
         {
             _nIcon.Visible = false;
@@ -179,7 +194,7 @@ namespace Requiem_Network_Launcher
             }
             base.OnStateChanged(e);
         }
-        
+
         private void MetroWindow_Closed(object sender, EventArgs e)
         {
             log.Info("Closing launcher.\n");
@@ -214,7 +229,7 @@ namespace Requiem_Network_Launcher
         /// <param name="e"></param>
         private void MainFrame_OnNavigating(object sender, NavigatingCancelEventArgs e)
         {
-            
+
             var da = new DoubleAnimation();
             da.Duration = TimeSpan.FromSeconds(0.7);
             if (e.NavigationMode == NavigationMode.New)
@@ -246,7 +261,7 @@ namespace Requiem_Network_Launcher
             WINDOWPOSCHANGING = 0x0046,
             EXITSIZEMOVE = 0x0232,
         }
-        
+
         [StructLayout(LayoutKind.Sequential)]
         internal struct WINDOWPOS
         {
@@ -329,6 +344,98 @@ namespace Requiem_Network_Launcher
 
             return IntPtr.Zero;
         }
+        #endregion
+
+        #region Background image handler
+        private async void GetBackGroundImages()
+        {
+            log.Info("Get background images.");
+            // work with .net framework 4.5 and above
+            HttpClient _client = new HttpClient();
+
+            try
+            {
+                // read info from version.txt on the server
+                var imagesCountString = await _client.GetStringAsync("http://requiemnetwork.com/launcher/background/count.txt");
+                var imagesCountStringSplit = imagesCountString.Split(',');
+                var numberOfImagesString = imagesCountStringSplit[0].Split('"')[3];
+                _numberOfImages = Int32.Parse(numberOfImagesString);
+
+                // starting from i = 1 because of image naming in url
+                for (int i = 1; i <= _numberOfImages; i++)
+                {
+                    ImageBrush background = new ImageBrush();
+                    background.ImageSource = new BitmapImage(new Uri("http://requiemnetwork.com/launcher/background/background_0" + i + ".jpg"));
+                    BackgroundImageBrushes.Add(background);
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error(e.ToString());
+            }
+
+            Dispatcher.Invoke((Action)(() =>
+            {
+                this.Background = BackgroundImageBrushes[0];
+            }));
+        }
+
+        private void SetBackgroundImage()
+        {
+            log.Info("Set/change background image(s).");
+
+            /*
+            Random random = new Random();
+
+            // random image indexes
+            int newImageIndex = random.Next(0, _numberOfImages);
+
+            // avoid repeating images
+            while (newImageIndex == _currentImageIndex)
+            {
+                newImageIndex = random.Next(0, _numberOfImages);
+            }*/
+            int newImageIndex;
+
+            if (_currentImageIndex == (_numberOfImages-1)) // if reach the end of the list
+            {
+                newImageIndex = 0; // go back to first image
+            }
+            else 
+            {
+                newImageIndex = _currentImageIndex + 1; // go forward
+            }
+            
+            var fadeInAnimation = new DoubleAnimation(1d, TimeSpan.FromSeconds(0.7));
+            var fadeOutAnimation = new DoubleAnimation(0d, TimeSpan.FromSeconds(0.7));
+
+            fadeOutAnimation.Completed += (o, e) =>
+            {
+                Dispatcher.Invoke((Action)(() =>
+                {
+                    // set background image
+                    BackgroundImageBrushes[newImageIndex].BeginAnimation(Brush.OpacityProperty, fadeInAnimation);
+                    this.Background = BackgroundImageBrushes[newImageIndex];
+                }));
+            };
+
+            Dispatcher.Invoke((Action)(() =>
+            {
+                BackgroundImageBrushes[_currentImageIndex].BeginAnimation(Brush.OpacityProperty, fadeOutAnimation);
+            }));
+            
+            // set current index
+            _currentImageIndex = newImageIndex;
+        }
+
+        private void BackgroundChangeTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Dispatcher.Invoke((Action)(() =>
+            {
+                SetBackgroundImage();
+            }));
+        }
+
         #endregion
     }
 }
