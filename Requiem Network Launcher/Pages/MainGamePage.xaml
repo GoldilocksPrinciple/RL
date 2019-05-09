@@ -54,7 +54,7 @@
                                     </Hyperlink.Style>
                                 </Hyperlink>
                                 </TextBlock>
-                                <TextBlock Text="&#x0a;=============================================================================&#x0a;&#x0a;&#x0a;" FontWeight="Normal" Foreground="White"/>
+                                <TextBlock Text="&#x0a;=============================================================================&#x0a;" FontWeight="Normal" Foreground="White"/>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

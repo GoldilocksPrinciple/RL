@@ -152,6 +152,7 @@ namespace Requiem_Network_Launcher
                         CreateAccountButton.Visibility = Visibility.Visible;
                         LoadingSpinner.Visibility = Visibility.Hidden;
                         mainWindow.LogoutButton.Content = "LOGOUT (" + LoginUsernameBox.Text.ToUpper() + ")";
+                        mainWindow._nIcon.Text = "Requiem Network Launcher (" + LoginUsernameBox.Text + ")";
                     }));
                     
                 }

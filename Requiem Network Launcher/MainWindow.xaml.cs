@@ -34,11 +34,11 @@ namespace Requiem_Network_Launcher
         public string currentVersionLocal;
         public string launcherInfoPath;
         public bool waitingForRestart = false;
-        private NotifyIcon _nIcon;
+        public NotifyIcon _nIcon;
         private static Logger log = NLog.LogManager.GetLogger("AppLog");
         private List<ImageBrush> BackgroundImageBrushes = new List<ImageBrush>();
         private int _numberOfImages;
-        private int _currentImageIndex = 0;
+        private int _currentImageIndex;
         #endregion
 
         #region Constructor
@@ -48,7 +48,7 @@ namespace Requiem_Network_Launcher
             GetBackGroundImages();
 
             // timer for background changing
-            System.Timers.Timer backgroundChangeTimer = new System.Timers.Timer(5000); // (ms) 5000 = 2 secs
+            System.Timers.Timer backgroundChangeTimer = new System.Timers.Timer(1800000); // (ms) 1800000 = 30 minutes
             backgroundChangeTimer.Elapsed += BackgroundChangeTimer_Elapsed;
             backgroundChangeTimer.Enabled = true;
 
@@ -247,6 +247,107 @@ namespace Requiem_Network_Launcher
             }
         }
         #endregion
+        
+        #region Background image handler
+        private async void GetBackGroundImages()
+        {
+            log.Info("Get background images.");
+
+            // <--------- get total number of images for background from server --------->
+            HttpClient _client = new HttpClient();
+            try
+            {
+                // read info from version.txt on the server
+                var imagesCountString = await _client.GetStringAsync("http://requiemnetwork.com/launcher/background/count.txt");
+                var imagesCountStringSplit = imagesCountString.Split(',');
+                var numberOfImagesString = imagesCountStringSplit[0].Split('"')[3];
+                _numberOfImages = Int32.Parse(numberOfImagesString);
+            }
+            catch (Exception e)
+            {
+                log.Error(e.ToString());
+            }
+
+            // <--------- set background image for mainwindow --------->
+            Random random = new Random();
+            // randomize an integer from 1
+            int randomIndex = random.Next(1, _numberOfImages+1);
+            // set background image
+            Dispatcher.Invoke((Action)(() =>
+            {
+                _currentImageIndex = randomIndex;
+                ImageBrush background = new ImageBrush();
+                background.ImageSource = new BitmapImage(new Uri("http://requiemnetwork.com/launcher/background/background_0" + _currentImageIndex + ".jpg"));
+                this.Background = background;
+            }));
+
+            // <--------- preload images into list of ImageBrush for faster images switch later --------->
+            // starting from i = 1 because of image naming in url
+            for (int i = 1; i <= _numberOfImages; i++)
+            {
+                ImageBrush background = new ImageBrush();
+                background.ImageSource = new BitmapImage(new Uri("http://requiemnetwork.com/launcher/background/background_0" + i + ".jpg"));
+                BackgroundImageBrushes.Add(background);
+            }
+        }
+
+        private void SetBackgroundImage()
+        {
+            log.Info("Set/change background image(s).");
+
+            // <--------- switch image randomly --------->
+            Random random = new Random();
+            // random image indexes
+            int newImageIndex = random.Next(0, _numberOfImages);
+            // avoid repeating images
+            while (newImageIndex == _currentImageIndex)
+            {
+                newImageIndex = random.Next(0, _numberOfImages);
+            }
+
+            /* <--------- switch image in order --------->
+            int newImageIndex;
+
+            if (_currentImageIndex == (_numberOfImages-1)) // if reach the end of the list
+            {
+                newImageIndex = 0; // go back to first image
+            }
+            else 
+            {
+                newImageIndex = _currentImageIndex + 1; // go forward
+            }*/
+
+            // <--------- image fade animation for smoother switch --------->
+            var fadeInAnimation = new DoubleAnimation(1d, TimeSpan.FromSeconds(0.7));
+            var fadeOutAnimation = new DoubleAnimation(0d, TimeSpan.FromSeconds(0.7));
+
+            fadeOutAnimation.Completed += (o, e) =>
+            {
+                Dispatcher.Invoke((Action)(() =>
+                {
+                    // set background image
+                    BackgroundImageBrushes[newImageIndex].BeginAnimation(Brush.OpacityProperty, fadeInAnimation);
+                    this.Background = BackgroundImageBrushes[newImageIndex];
+                }));
+            };
+
+            Dispatcher.Invoke((Action)(() =>
+            {
+                BackgroundImageBrushes[_currentImageIndex].BeginAnimation(Brush.OpacityProperty, fadeOutAnimation);
+            }));
+            
+            // set current index
+            _currentImageIndex = newImageIndex;
+        }
+
+        private void BackgroundChangeTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Dispatcher.Invoke((Action)(() =>
+            {
+                SetBackgroundImage();
+            }));
+        }
+        #endregion
 
         #region Custom window resize - auto calculate ratio
         private double _aspectRatio;
@@ -344,98 +445,6 @@ namespace Requiem_Network_Launcher
 
             return IntPtr.Zero;
         }
-        #endregion
-
-        #region Background image handler
-        private async void GetBackGroundImages()
-        {
-            log.Info("Get background images.");
-            // work with .net framework 4.5 and above
-            HttpClient _client = new HttpClient();
-
-            try
-            {
-                // read info from version.txt on the server
-                var imagesCountString = await _client.GetStringAsync("http://requiemnetwork.com/launcher/background/count.txt");
-                var imagesCountStringSplit = imagesCountString.Split(',');
-                var numberOfImagesString = imagesCountStringSplit[0].Split('"')[3];
-                _numberOfImages = Int32.Parse(numberOfImagesString);
-
-                // starting from i = 1 because of image naming in url
-                for (int i = 1; i <= _numberOfImages; i++)
-                {
-                    ImageBrush background = new ImageBrush();
-                    background.ImageSource = new BitmapImage(new Uri("http://requiemnetwork.com/launcher/background/background_0" + i + ".jpg"));
-                    BackgroundImageBrushes.Add(background);
-                }
-            }
-            catch (Exception e)
-            {
-                log.Error(e.ToString());
-            }
-
-            Dispatcher.Invoke((Action)(() =>
-            {
-                this.Background = BackgroundImageBrushes[0];
-            }));
-        }
-
-        private void SetBackgroundImage()
-        {
-            log.Info("Set/change background image(s).");
-
-            /*
-            Random random = new Random();
-
-            // random image indexes
-            int newImageIndex = random.Next(0, _numberOfImages);
-
-            // avoid repeating images
-            while (newImageIndex == _currentImageIndex)
-            {
-                newImageIndex = random.Next(0, _numberOfImages);
-            }*/
-            int newImageIndex;
-
-            if (_currentImageIndex == (_numberOfImages-1)) // if reach the end of the list
-            {
-                newImageIndex = 0; // go back to first image
-            }
-            else 
-            {
-                newImageIndex = _currentImageIndex + 1; // go forward
-            }
-            
-            var fadeInAnimation = new DoubleAnimation(1d, TimeSpan.FromSeconds(0.7));
-            var fadeOutAnimation = new DoubleAnimation(0d, TimeSpan.FromSeconds(0.7));
-
-            fadeOutAnimation.Completed += (o, e) =>
-            {
-                Dispatcher.Invoke((Action)(() =>
-                {
-                    // set background image
-                    BackgroundImageBrushes[newImageIndex].BeginAnimation(Brush.OpacityProperty, fadeInAnimation);
-                    this.Background = BackgroundImageBrushes[newImageIndex];
-                }));
-            };
-
-            Dispatcher.Invoke((Action)(() =>
-            {
-                BackgroundImageBrushes[_currentImageIndex].BeginAnimation(Brush.OpacityProperty, fadeOutAnimation);
-            }));
-            
-            // set current index
-            _currentImageIndex = newImageIndex;
-        }
-
-        private void BackgroundChangeTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            Dispatcher.Invoke((Action)(() =>
-            {
-                SetBackgroundImage();
-            }));
-        }
-
         #endregion
     }
 }

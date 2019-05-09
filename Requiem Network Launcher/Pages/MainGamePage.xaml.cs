@@ -32,7 +32,6 @@ namespace Requiem_Network_Launcher
         private Process _vindictus;
         private double _updateFileSize;
         private string _updatePath;
-        private string _tempExtractedPath;
         private string _updateDownloadID;
         private string _versionTxtCheck = "yes";
         private string _continueSign = "continue";
@@ -59,6 +58,10 @@ namespace Requiem_Network_Launcher
                 try
                 {
                     LoginForum();
+                    Dispatcher.Invoke((Action)(() =>
+                    {
+                        LoadingSpinner.Visibility = Visibility.Visible;
+                    }));
                     PullRSSFeed("http://requiemnetwork.com/forum/44-server-news.xml/", "http://requiemnetwork.com/forum/44-server-news/");
                 }
                 catch (WebException e )
@@ -200,6 +203,8 @@ namespace Requiem_Network_Launcher
                             // re-enable start game button for player
                             StartGameButton.Content = "START GAME";
                             StartGameButton.IsEnabled = true;
+                            CheckForUpdatesButton.IsEnabled = true;
+                            DropRateCalculatorButton.IsEnabled = true;
                         }
                         else
                         {
@@ -258,12 +263,25 @@ namespace Requiem_Network_Launcher
                 // disable start game button when check for game version
                 StartGameButton.Content = "UPDATING";
                 StartGameButton.IsEnabled = false;
-
+                CheckForUpdatesButton.IsEnabled = false;
+                DropRateCalculatorButton.IsEnabled = false;
             }));
 
+            // close all Vindictus instances before performing update
             foreach (var process in Process.GetProcessesByName("Vindictus"))
             {
                 process.Kill();
+            }
+
+            // close all DropRatesCalculator instances before performing update
+            foreach (var process in Process.GetProcessesByName("VindiDropRates"))
+            {
+                process.Kill();
+            }
+            if (File.Exists(mainWindow.dropRateCalculatorPath))
+            {
+                // temporary rename DRC to OldDRC.exe
+                File.Move(mainWindow.dropRateCalculatorPath, Path.Combine(mainWindow.rootDirectory, "OldDRC.exe"));
             }
             
             if (_versionTxtCheck == "not found")
@@ -390,14 +408,7 @@ namespace Requiem_Network_Launcher
                 _continueSign = "stop";
                 log.Info("Finish downloading update.");
                 log.Info("Extracting files.");
-
-                // temporary directory for extracting files
-                _tempExtractedPath = _updatePath = System.IO.Path.Combine(mainWindow.rootDirectory, "Temp");
-                if (!Directory.Exists(_tempExtractedPath))
-                {
-                    Directory.CreateDirectory(_tempExtractedPath);
-                }
-
+                
                 Dispatcher.Invoke((Action)(() =>
                 {
                     ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
@@ -415,7 +426,7 @@ namespace Requiem_Network_Launcher
                         //zip.ExtractAll(@"D:\test\", ExtractExistingFileAction.OverwriteSilently);
                         try
                         {
-                            zip.ExtractAll(_tempExtractedPath, ExtractExistingFileAction.OverwriteSilently);
+                            zip.ExtractAll(mainWindow.rootDirectory, ExtractExistingFileAction.OverwriteSilently);
                         }
                         catch (Exception e1)
                         {
@@ -425,6 +436,17 @@ namespace Requiem_Network_Launcher
 
                     // delete the temporary zip file after finish extracting
                     File.Delete(_updatePath);
+
+                    // check for new DRC, if exist, delete the old one. If no, rename the old one back to DRC.exe
+                    if (!File.Exists(mainWindow.dropRateCalculatorPath))
+                    {
+
+                        File.Move(Path.Combine(mainWindow.rootDirectory, "OldDRC.exe"), mainWindow.dropRateCalculatorPath);
+                    }
+                    else
+                    {
+                        File.Delete(Path.Combine(mainWindow.rootDirectory, "OldDRC.exe"));
+                    }
 
                     Dispatcher.Invoke((Action)(() =>
                     {
@@ -685,10 +707,6 @@ namespace Requiem_Network_Launcher
         private void PullRSSFeed(string url, string reference)
         {
             log.Info("Pulling RSS feed.");
-            Dispatcher.Invoke((Action)(() =>
-            {
-                LoadingSpinner.Visibility = Visibility.Visible;
-            }));
             List<Feed> rssFeed = new List<Feed>();
             try
             {
@@ -887,6 +905,10 @@ namespace Requiem_Network_Launcher
         {
             log.Info("Patch notes button clicked.");
             MenuItemSetTransitions(1);
+            Dispatcher.Invoke((Action)(() =>
+            {
+                LoadingSpinner.Visibility = Visibility.Visible;
+            }));
             new Thread(delegate ()
             {
                 PullRSSFeed("http://requiemnetwork.com/forum/39-patch-notes.xml/", "http://requiemnetwork.com/forum/39-patch-notes/");
