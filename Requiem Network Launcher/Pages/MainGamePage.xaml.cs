@@ -766,8 +766,6 @@ namespace Requiem_Network_Launcher
         }
         #endregion
 
-        #endregion
-
         #region Check file path 
         /// <summary>
         /// Validating file path
