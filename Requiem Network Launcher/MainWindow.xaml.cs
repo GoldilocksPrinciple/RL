@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Net.Http;
 using System.Collections;
 using System.Collections.Generic;
+using DiscordRPC;
 
 namespace Requiem_Network_Launcher
 {
@@ -35,6 +36,7 @@ namespace Requiem_Network_Launcher
         public string launcherInfoPath;
         public bool waitingForRestart = false;
         public NotifyIcon _nIcon;
+        public DiscordRpcClient discordRpcClient = new DiscordRpcClient("576564180350533673");
         private static Logger log = NLog.LogManager.GetLogger("AppLog");
         private List<ImageBrush> BackgroundImageBrushes = new List<ImageBrush>();
         private int _numberOfImages;
@@ -54,6 +56,8 @@ namespace Requiem_Network_Launcher
 
             this.SourceInitialized += Window_SourceInitialized;
             NotifyIconSetup();
+
+            SetupDiscordRpcClient();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -109,7 +113,7 @@ namespace Requiem_Network_Launcher
             try
             {
                 dllPath = System.IO.Path.Combine(rootDirectory, "winnsi.dll");
-                processPath = System.IO.Path.Combine(rootDirectory, "Vindictus.exe");
+                processPath = System.IO.Path.Combine(rootDirectory, "Requiem.exe");
                 versionPath = System.IO.Path.Combine(rootDirectory, "version.txt");
                 dropRateCalculatorPath = System.IO.Path.Combine(rootDirectory, "DropRatesCalculator.exe");
             }
@@ -173,6 +177,10 @@ namespace Requiem_Network_Launcher
         private void MenuExit_Click(object sender, EventArgs e)
         {
             _nIcon.Visible = false;
+            if (discordRpcClient.IsInitialized)
+            {
+                discordRpcClient.Dispose();
+            }
             this.Close();
         }
 
@@ -199,6 +207,10 @@ namespace Requiem_Network_Launcher
         {
             log.Info("Closing launcher.\n");
             _nIcon.Visible = false;
+            if(discordRpcClient.IsInitialized)
+            {
+                discordRpcClient.Dispose();
+            }
             Environment.Exit(0);
         }
 
@@ -346,6 +358,25 @@ namespace Requiem_Network_Launcher
             {
                 SetBackgroundImage();
             }));
+        }
+        #endregion
+
+        #region Setup discord rpc client
+        public void SetupDiscordRpcClient()
+        {
+            log.Info("Setup drpc.");
+
+            discordRpcClient.OnReady += (sender, e) =>
+            {
+                Console.WriteLine("Received Ready from user {0}", e.User.Username);
+            };
+
+            discordRpcClient.OnPresenceUpdate += (sender, e) =>
+            {
+                Console.WriteLine("Received Update! {0}", e.Presence);
+            };
+
+            discordRpcClient.Initialize();
         }
         #endregion
 

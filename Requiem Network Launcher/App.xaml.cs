@@ -72,7 +72,7 @@ namespace Requiem_Network_Launcher
                                System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             log.Error("Unexpected error");
-            log.Error(e.ToString());
+            log.Error(e.Exception.ToString());
             //Handling the exception within the UnhandledException handler.
             MessageBox.Show(e.Exception.Message, "Requiem - Error",
                                     MessageBoxButton.OK, MessageBoxImage.Error);

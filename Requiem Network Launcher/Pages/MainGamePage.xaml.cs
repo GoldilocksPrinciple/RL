@@ -19,6 +19,7 @@ using System.ServiceModel.Syndication;
 using System.ComponentModel;
 using System.Timers;
 using NLog;
+using DiscordRPC;
 
 namespace Requiem_Network_Launcher
 {
@@ -116,16 +117,30 @@ namespace Requiem_Network_Launcher
                 StartGameButton.Content = "PLAYING";
                 StartGameButton.IsEnabled = false;
             }));
+            
 
             // close the launcher
             await Task.Delay(2000);
-
+            
             mainWindow.WindowState = WindowState.Minimized;
+
+            mainWindow.discordRpcClient.SetPresence(new RichPresence()
+            {
+                Details = "Online",
+                State = "",
+                Timestamps = new Timestamps(DateTime.UtcNow),
+                Assets = new Assets()
+                {
+                    LargeImageKey = "largeimage1",
+                    LargeImageText = "Requiem Network",
+                }
+            });
         }
 
-        private void _process_Exited(object sender, EventArgs e)
+        private async void _process_Exited(object sender, EventArgs e)
         {
             playing = false;
+            
             Dispatcher.Invoke((Action)(() =>
             {
                 // re-enable start game button after the game is closed
@@ -133,6 +148,11 @@ namespace Requiem_Network_Launcher
                 StartGameButton.IsEnabled = true;
                 StartGameButton.Foreground = new SolidColorBrush(Colors.Black);
             }));
+
+            // wait for Vindictus status go away
+            await Task.Delay(5000);
+
+            mainWindow.discordRpcClient.Dispose();
         }
         #endregion
 
@@ -673,7 +693,7 @@ namespace Requiem_Network_Launcher
         /// </summary>
         private void LoginForum()
         {
-            log.Info("Login forum.");
+            log.Info("RequiemNetwork.com.");
             var test = "name='csrfKey' value='([0-9A-Za-z]+)'".Replace("'", "\"");
             HttpWebResponse myResponse = CustomHttpMethod.Get("http://requiemnetwork.com/login/", "http://requiemnetwork.com/login/", ref myCookies);
             string pageSrc;
@@ -706,7 +726,7 @@ namespace Requiem_Network_Launcher
 
         private void PullRSSFeed(string url, string reference)
         {
-            log.Info("Pulling RSS feed.");
+            log.Info("Get News/Patch notes.");
             List<Feed> rssFeed = new List<Feed>();
             try
             {
@@ -750,6 +770,7 @@ namespace Requiem_Network_Launcher
             System.Diagnostics.Process.Start(e.Uri.AbsoluteUri);
             e.Handled = true;
         }
+        #endregion
 
         #region Rss feed object
         private class Feed
@@ -818,7 +839,7 @@ namespace Requiem_Network_Launcher
             }
         }
         #endregion
-
+        
         #region DownloadInfoBox animation
         /// <summary>
         /// Create animation for information box
