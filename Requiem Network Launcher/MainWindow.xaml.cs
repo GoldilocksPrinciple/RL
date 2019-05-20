@@ -55,7 +55,6 @@ namespace Requiem_Network_Launcher
 
             this.SourceInitialized += Window_SourceInitialized;
             NotifyIconSetup();
-
             // have to use new thread since download might block UI
             GetBackGroundImages();
             
@@ -478,7 +477,7 @@ namespace Requiem_Network_Launcher
             }));
         }
         #endregion
-
+        
         #region Setup discord rpc client
         /*
         public void SetupDiscordRpcClient()
@@ -498,7 +497,7 @@ namespace Requiem_Network_Launcher
             discordRpcClient.Initialize();
         }*/
         #endregion
-
+            
         #region Custom window resize - auto calculate ratio
         private double _aspectRatio;
         private bool? _adjustingHeight = null;
