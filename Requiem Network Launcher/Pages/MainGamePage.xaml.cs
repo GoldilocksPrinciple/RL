@@ -124,6 +124,7 @@ namespace Requiem_Network_Launcher
             
             mainWindow.WindowState = WindowState.Minimized;
 
+            /*
             mainWindow.discordRpcClient.SetPresence(new RichPresence()
             {
                 Details = "Online",
@@ -134,10 +135,10 @@ namespace Requiem_Network_Launcher
                     LargeImageKey = "largeimage1",
                     LargeImageText = "Requiem Network",
                 }
-            });
+            });*/
         }
 
-        private async void _process_Exited(object sender, EventArgs e)
+        private void _process_Exited(object sender, EventArgs e)
         {
             playing = false;
             
@@ -148,11 +149,8 @@ namespace Requiem_Network_Launcher
                 StartGameButton.IsEnabled = true;
                 StartGameButton.Foreground = new SolidColorBrush(Colors.Black);
             }));
-
-            // wait for Vindictus status go away
-            await Task.Delay(5000);
-
-            mainWindow.discordRpcClient.Dispose();
+            
+            //mainWindow.discordRpcClient.Dispose();
         }
         #endregion
 

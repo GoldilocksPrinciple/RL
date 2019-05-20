@@ -1,0 +1,44 @@
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\Requiem Network Launcher.exe.config
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\Requiem Network Launcher.exe
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\Requiem Network Launcher.pdb
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\MahApps.Metro.xml
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\Microsoft.Xaml.Behaviors.xml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.exe.config
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Utils\LoadingSpinner.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\LoginPage.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\MainGamePage.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\MainWindow.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\RegisterPage.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\App.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\GeneratedInternalTypeHelper.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher_MarkupCompile.cache
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher_MarkupCompile.lref
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\App.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Utils\LoadingSpinner.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\LoginPage.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\MainGamePage.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\MainWindow.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\RegisterPage.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Themes\CustomTheme.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.g.resources
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem_Network_Launcher.Properties.Resources.resources
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.csproj.GenerateResource.cache
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.csproj.CoreCompileInputs.cache
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.csproj.CopyComplete
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.exe
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.pdb
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\DotNetZip.xml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.csprojAssemblyReference.cache
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\HtmlAgilityPack.xml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\RestartLauncherDialog.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\RestartLauncherDialog.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\UpdateWarningWindow.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\UpdateWarningWindow.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\Newtonsoft.Json.xml
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher.csproj.Fody.CopyLocal.cache
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\PasswordRecoveryPage.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Pages\PasswordRecoveryPage.baml
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\NLog.xml
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\NLog.config
+D:\Requiem Network Launcher\Requiem Network Launcher\obj\Release\Requiem Network Launcher_Content.g.cs
+D:\Requiem Network Launcher\Requiem Network Launcher\bin\Release\DiscordRPC.xml

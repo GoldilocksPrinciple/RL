@@ -25,7 +25,7 @@ namespace Requiem_Network_Launcher
         private void DeclineUpdateButton_Click(object sender, RoutedEventArgs e)
         {
             log.Info("Decline large update.");
-            ((MainWindow)Application.Current.MainWindow).discordRpcClient.Dispose();
+            //((MainWindow)Application.Current.MainWindow).discordRpcClient.Dispose();
             log.Info("Closing launcher.\n");
             Environment.Exit(0);
         }

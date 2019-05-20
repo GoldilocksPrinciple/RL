@@ -21,7 +21,7 @@ namespace Requiem_Network_Launcher
         {
             log.Info("Restart launcher button clicked.");
             ((MainWindow)Application.Current.MainWindow).waitingForRestart = false;
-            ((MainWindow)Application.Current.MainWindow).discordRpcClient.Dispose();
+            //((MainWindow)Application.Current.MainWindow).discordRpcClient.Dispose();
             string launcherUpdaterPath = System.IO.Path.Combine(((MainWindow)Application.Current.MainWindow).rootDirectory, "updater.exe");
             Process launcherUpdater = new Process();
             launcherUpdater.StartInfo.FileName = launcherUpdaterPath;
