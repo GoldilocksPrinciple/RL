@@ -24,9 +24,9 @@ namespace Requiem_Network_Launcher
         public static void SaveUserLoginInfo(string username, byte[] encryptedPassword, byte[] IV)
         {
             RegistryKey requiemKey = keyCurrentUser.CreateSubKey(@"SOFTWARE\RequiemNetwork");
-            requiemKey.SetValue("464443", Encoding.ASCII.GetBytes(username), RegistryValueKind.Binary); // username. 46-44-43 are base64 indexes of "usr"
-            requiemKey.SetValue("41483", encryptedPassword, RegistryValueKind.Binary); // password. 41-48-3 are base64 indexes of "pwd"
-            requiemKey.SetValue("947", IV, RegistryValueKind.Binary); // IV. 9-47 are base64 indexes of "IV"
+            requiemKey.SetValue("464443", Encoding.ASCII.GetBytes(username), RegistryValueKind.Binary); // username
+            requiemKey.SetValue("41483", encryptedPassword, RegistryValueKind.Binary); // password
+            requiemKey.SetValue("947", IV, RegistryValueKind.Binary); // IV
         }
 
         public static void GetUserLoginInfo()

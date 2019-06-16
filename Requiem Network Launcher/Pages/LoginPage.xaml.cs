@@ -27,6 +27,8 @@ namespace Requiem_Network_Launcher
         public LoginPage()
         {
             InitializeComponent();
+
+            // fill user's login credentials
             FillUserInfo();
         }
 

@@ -293,7 +293,11 @@ namespace Requiem_Network_Launcher
             }
             if (File.Exists(mainWindow.dropRateCalculatorPath))
             {
-                // temporary rename DRC to OldDRC.exe
+                // temporary rename DRC to OldDRC.exe. If OldDRC.exe exists, delete it, then rename
+                if (File.Exists(Path.Combine(mainWindow.rootDirectory, "OldDRC.exe")))
+                {
+                    File.Delete(Path.Combine(mainWindow.rootDirectory, "OldDRC.exe"));
+                }
                 File.Move(mainWindow.dropRateCalculatorPath, Path.Combine(mainWindow.rootDirectory, "OldDRC.exe"));
             }
             
@@ -453,7 +457,6 @@ namespace Requiem_Network_Launcher
                     // check for new DRC, if exist, delete the old one. If no, rename the old one back to DRC.exe
                     if (!File.Exists(mainWindow.dropRateCalculatorPath))
                     {
-
                         File.Move(Path.Combine(mainWindow.rootDirectory, "OldDRC.exe"), mainWindow.dropRateCalculatorPath);
                     }
                     else
