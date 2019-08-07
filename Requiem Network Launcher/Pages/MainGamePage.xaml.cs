@@ -53,6 +53,7 @@ namespace Requiem_Network_Launcher
         {
             InitializeComponent();
             CheckFilesPath();
+
             new Thread(delegate ()
             {
                 try
@@ -109,6 +110,10 @@ namespace Requiem_Network_Launcher
 
             // inject winnsi.dll to Vindictus.exe 
             _injector.CreateRemoteThread(mainWindow.dllPath, _vindictus.Id);
+            //_injector.ManualMap(mainWindow.dllPath, _vindictus.Id);
+            //_injector.QueueUserApc(mainWindow.dllPath, _vindictus.Id);
+            //_injector.RtlCreateUserThread(mainWindow.dllPath, _vindictus.Id);
+            //_injector.SetThreadContext(mainWindow.dllPath, _vindictus.Id);
 
             Dispatcher.Invoke((Action)(() =>
             {
@@ -171,9 +176,37 @@ namespace Requiem_Network_Launcher
 
             // read info from version.txt file in main game folder
             var versionTextLocal = System.IO.File.ReadAllText(mainWindow.versionPath);
-            var versionTextLocalSplit = versionTextLocal.Split(',');
-            var currentVersionLocal = versionTextLocalSplit[0].Split('"')[3];
-            var currentVersionDate = versionTextLocalSplit[1].Split('"')[3];
+
+            string[] versionTextLocalSplit = null;
+            string currentVersionLocal = null;
+            string currentVersionDate = null;
+            try
+            {
+                versionTextLocalSplit = versionTextLocal.Split(',');
+                currentVersionLocal = versionTextLocalSplit[0].Split('"')[3];
+                currentVersionDate = versionTextLocalSplit[1].Split('"')[3];
+            }
+            catch (Exception e)
+            {
+                if (e is IndexOutOfRangeException)
+                {
+                    log.Error(e.ToString());
+
+                    if (System.Windows.MessageBox.Show("You have an incorrect type of Version.txt file. Please delete it and relaunch the launcher", "Version Error", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                        Environment.Exit(0);
+                }
+                else
+                {
+                    log.Error(e.ToString());
+
+                    if (System.Windows.MessageBox.Show("Error reading game version. Please contact staff for more help.", "Version Error", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                        Environment.Exit(0);
+                }
+                
+            }
+
+            if (versionTextLocalSplit == null && currentVersionLocal == null && currentVersionDate == null)
+                return;
 
             // update small version info at bottom left corner
             Dispatcher.Invoke((Action)(() =>
