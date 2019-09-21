@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Net.Http;
 using System.Net;
 using System.Threading;
+using Requiem_Network_Launcher.Utils;
 
 namespace Requiem_Network_Launcher
 {

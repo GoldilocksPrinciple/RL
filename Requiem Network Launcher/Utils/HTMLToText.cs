@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using System.IO;
 
-namespace Requiem_Network_Launcher
+namespace Requiem_Network_Launcher.Utils
 {
     public class HTMLToText
     {

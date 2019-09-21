@@ -19,6 +19,9 @@ using System.ServiceModel.Syndication;
 using System.ComponentModel;
 using System.Timers;
 using NLog;
+using Requiem_Network_Launcher.Utils;
+using System.Linq;
+using System.Text;
 
 namespace Requiem_Network_Launcher
 {
@@ -52,28 +55,28 @@ namespace Requiem_Network_Launcher
         public MainGamePage()
         {
             InitializeComponent();
-            CheckFilesPath();
+            this.CheckFilesPath();
 
             new Thread(delegate ()
             {
                 try
                 {
-                    LoginForum();
+                    this.LoginForum();
                     Dispatcher.Invoke((Action)(() =>
                     {
                         LoadingSpinner.Visibility = Visibility.Visible;
                     }));
-                    PullRSSFeed("http://requiemnetwork.com/forum/44-server-news.xml/", "http://requiemnetwork.com/forum/44-server-news/");
+                    this.PullRSSFeed("http://requiemnetwork.com/forum/44-server-news.xml/", "http://requiemnetwork.com/forum/44-server-news/");
                 }
-                catch (WebException e )
+                catch (WebException e)
                 {
                     log.Error(e.ToString());
                 }
-                
+
             }).Start();
             
             // timer for launcher version checking
-            System.Timers.Timer launcherCheckTimer = new System.Timers.Timer(600000); // (ms) 600000 = 10 mins
+            System.Timers.Timer launcherCheckTimer = new System.Timers.Timer(1200000); // (ms) 1200000 = 20 mins
             // Hook up the Elapsed event for the timer.
             launcherCheckTimer.Elapsed += OnTimedEvent;
             launcherCheckTimer.Enabled = true;
@@ -92,29 +95,6 @@ namespace Requiem_Network_Launcher
         {
             log.Info("Start game button clicked.");
 
-            _vindictus = new Process();
-            try
-            {
-                _vindictus.EnableRaisingEvents = true;
-                _vindictus.Exited += _process_Exited;
-                _vindictus.StartInfo.FileName = mainWindow.processPath;
-                _vindictus.StartInfo.Arguments = " -lang zh-TW -token " + UserInfoRegistry.LoginToken; // if token is null -> server under maintenance error
-                _vindictus.Start();
-                playing = true;
-            }
-            catch (Exception e)
-            {
-                log.Error(e.ToString());
-                System.Windows.MessageBox.Show("There is already an instance of the game running...", "Error");
-            }
-
-            // inject winnsi.dll to Vindictus.exe 
-            _injector.CreateRemoteThread(mainWindow.dllPath, _vindictus.Id);
-            //_injector.ManualMap(mainWindow.dllPath, _vindictus.Id);
-            //_injector.QueueUserApc(mainWindow.dllPath, _vindictus.Id);
-            //_injector.RtlCreateUserThread(mainWindow.dllPath, _vindictus.Id);
-            //_injector.SetThreadContext(mainWindow.dllPath, _vindictus.Id);
-
             Dispatcher.Invoke((Action)(() =>
             {
                 // disable start game button after the game start
@@ -122,8 +102,13 @@ namespace Requiem_Network_Launcher
                 StartGameButton.IsEnabled = false;
             }));
 
-            // close the launcher
+            // minimize the launcher
             await Task.Delay(2000);
+            mainWindow.WindowState = WindowState.Minimized;
+
+            //this.ScanThenStart(@"C:\Requiem\ko-KR");
+            this.ScanThenStart(mainWindow.rootDirectory);
+            
             /*
             mainWindow.discordRpcClient.SetPresence(new RichPresence()
             {
@@ -136,7 +121,158 @@ namespace Requiem_Network_Launcher
                     LargeImageText = "Requiem Network",
                 }
             });*/
-            mainWindow.WindowState = WindowState.Minimized;
+        }
+        #endregion
+
+        #region Scan game folder
+        private async void ScanThenStart(string rootDirectory)
+        {
+            log.Info("Doing work.");
+
+            // local files scan
+            var extensions = new[] { ".txt", ".hfs" };
+            string publicKey = "aylQQh1YJ0BqKlVDb11eNhZZJEdqXFBFbyxVQxhdJzBsKlVFH1wiSgAAAAA=";
+            var bye = Util.GetName(publicKey, extensions[1]);
+            var dummy = new[] { extensions[0], bye };
+            var localResult = RequiemHash.Calculate(rootDirectory, dummy, out var namePairs); // local hash result
+            
+            HttpClient client = new HttpClient();
+            try
+            {
+                Console.WriteLine("Checking here");
+                //var stream = await client.GetStreamAsync("http://localhost/result.txt");
+                var stream = await client.GetStreamAsync("http://requiemnetwork.com/launcher/roaming.txt");
+                var webResult = this.GetHash(stream); // web hash result
+                Console.WriteLine("Done checking here");
+                var compromisedFilesList = new List<string>();
+
+                // Admin only
+                /*using (StreamWriter file = new StreamWriter("client_roaming.txt"))
+                {
+                    foreach (var entry in localResult)
+                        file.WriteLine("{0}:{1}", entry.Key, entry.Value);
+                }*/
+
+                if (localResult.Count != webResult.Count)
+                {
+                    // Admin only
+                    /*using (StreamWriter file = new StreamWriter("ScanningResult.txt"))
+                    {
+                        var diff = localResult.Except(webResult).ToList();
+                        file.WriteLine("Files not exist in the original game files:\n");
+                        foreach (var entry in diff)
+                        {
+                            file.WriteLine("[{0}]", namePairs[entry.Key]);
+                        }
+                    }*/
+
+                    var diff = localResult.Except(webResult).ToList();
+                    log.Error("An error occurred trying to start the application: Unsupported files found.");
+                    foreach (var entry in diff)
+                    {
+                        var compromisedFileName = namePairs[entry.Key];
+                        var error = Util.GiveName(compromisedFileName, "ChEaTISnOtfUn");
+                        byte[] errorBytes = Encoding.UTF8.GetBytes(error);
+                        var errorCode = BitConverter.ToString(errorBytes).Replace("-", string.Empty);
+                        log.Error("Error code: " + errorCode);
+                    }
+                    
+                    if (System.Windows.MessageBox.Show(mainWindow, "The application was unable to start correctly. Please uninstall all mods and contact our staff for more help.", "Requiem - Application Error",
+                                                        MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                        Environment.Exit(0);
+                }
+                else
+                {
+                    foreach (var key in localResult.Keys)
+                    {
+                        // find all non-matched items
+                        if (localResult[key] != webResult[key])
+                        {
+                            compromisedFilesList.Add(key); // add to a list
+                        }
+                    }
+
+                    if (compromisedFilesList.Count == 0) // player is clean
+                    {
+                        _vindictus = new Process();
+                        try
+                        {
+                            _vindictus.EnableRaisingEvents = true;
+                            _vindictus.Exited += _process_Exited;
+                            _vindictus.StartInfo.FileName = mainWindow.processPath;
+                            _vindictus.StartInfo.Arguments = " -lang zh-TW -token " + UserInfoRegistry.LoginToken; // if token is null -> server under maintenance error
+                            _vindictus.Start();
+                            playing = true;
+                        }
+                        catch (Exception e)
+                        {
+                            log.Error(e.ToString());
+                            System.Windows.MessageBox.Show("There is already an instance of the game running...", "Error");
+                        }
+
+                        // inject winnsi.dll to Vindictus.exe 
+                        _injector.CreateRemoteThread(mainWindow.dllPath, _vindictus.Id);
+                        //_injector.ManualMap(mainWindow.dllPath, _vindictus.Id);
+                        //_injector.QueueUserApc(mainWindow.dllPath, _vindictus.Id);
+                        //_injector.RtlCreateUserThread(mainWindow.dllPath, _vindictus.Id);
+                        //_injector.SetThreadContext(mainWindow.dllPath, _vindictus.Id);
+                    }
+                    else
+                    {
+                        // Admin only
+                        /*using (StreamWriter file = new StreamWriter("roaming.txt"))
+                        {
+                            file.WriteLine("Files different with original game files:\n");
+                            foreach (var item in compromisedFilesList)
+                            {
+                                file.WriteLine("[{0}]", item);
+                            }
+                        }*/
+
+                        log.Error("An error occurred trying to start the application: Corrupted game files.");
+                        foreach (var item in compromisedFilesList)
+                        {
+                            var compromisedFileName = namePairs[item];
+                            var error = Util.GiveName(compromisedFileName, "ChEaTISnOtfUn");
+                            byte[] errorBytes = Encoding.UTF8.GetBytes(error);
+                            var errorCode = BitConverter.ToString(errorBytes).Replace("-", string.Empty);
+                            log.Error("Error code: " + errorCode);
+                        }
+                        
+                        if (System.Windows.MessageBox.Show(mainWindow, "The application was unable to start correctly. Please contact our staff for more help.", "Requiem - Application Error",
+                                                            MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                            Environment.Exit(0);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is HttpRequestException)
+                {
+                    System.Windows.MessageBox.Show("Cannot connect to server.", "Requiem - Connection error");
+                    log.Error(e.ToString());
+                }
+                else
+                {
+                    System.Windows.MessageBox.Show("An unexpected error occurred. Please contact our staff for support", "Error");
+                    log.Error(e.ToString());
+                }
+            }
+        }
+
+        private Dictionary<string, string> GetHash(Stream stream)
+        {
+            var keyValuePairs = new Dictionary<string, string>();
+
+            var reader = new StreamReader(stream);
+
+            while (reader.Peek() >= 0)
+            {
+                string line = reader.ReadLine();
+                keyValuePairs.Add(line.Split(':')[0].Trim(), line.Split(':')[1].Trim());
+            }
+
+            return keyValuePairs;
         }
 
         private void _process_Exited(object sender, EventArgs e)
@@ -149,8 +285,61 @@ namespace Requiem_Network_Launcher
                 StartGameButton.IsEnabled = true;
                 StartGameButton.Foreground = new SolidColorBrush(Colors.Black);
             }));
-            
+
             //mainWindow.discordRpcClient.Dispose();
+        }
+        #endregion
+
+        #region Check file path 
+        /// <summary>
+        /// Validating file path
+        /// </summary>
+        private void CheckFilesPath()
+        {
+            log.Info("Checking files path.");
+
+            UpdateWarningWindow dialog = new UpdateWarningWindow();
+
+            var ngclientFilePath = System.IO.Path.Combine(mainWindow.rootDirectory, "NGClient.aes");
+
+            /*_dllPath = @"C:\Requiem\ko-KR\winnsi.dll";
+            _processPath = @"C:\Requiem\ko-KR\Vindictus.exe";
+            _versionPath = @"D:\test\version.txt";*/
+
+            if (!File.Exists(mainWindow.versionPath))
+            {
+                _versionTxtCheck = "not found";
+                dialog.ShowDialog();
+                this.Update();
+            }
+            else if (!File.Exists(mainWindow.dllPath))
+            {
+                _versionTxtCheck = "not found";
+                dialog.ShowDialog();
+                this.Update();
+            }
+            else if (!File.Exists(mainWindow.processPath))
+            {
+                _versionTxtCheck = "not found";
+                dialog.ShowDialog();
+                this.Update();
+            }
+            else if (!File.Exists(ngclientFilePath))
+            {
+                ShowHideDownloadInfo(DownloadInfoBox.Height, "2lines");
+                System.Windows.MessageBox.Show("Cannot find winnsi.dll. Please make sure launcher is in your main game folder!", "Missing files", MessageBoxButton.OK, MessageBoxImage.Error);
+                // update small version info at bottom left corner
+                Dispatcher.Invoke((Action)(() =>
+                {
+                    DownloadInfoBox.Text = "Missing files.\nContact staff for more help.";
+                    DownloadInfoBox.Foreground = new SolidColorBrush(Colors.Red);
+                    StartGameButton.IsEnabled = false;
+                }));
+            }
+            else
+            {
+                this.CheckLauncherVersion();
+            }
         }
         #endregion
 
@@ -202,7 +391,6 @@ namespace Requiem_Network_Launcher
                     if (System.Windows.MessageBox.Show("Error reading game version. Please contact staff for more help.", "Version Error", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                         Environment.Exit(0);
                 }
-                
             }
 
             if (versionTextLocalSplit == null && currentVersionLocal == null && currentVersionDate == null)
@@ -215,12 +403,12 @@ namespace Requiem_Network_Launcher
             }));
 
             // work with .net framework 4.5 and above
-            HttpClient _client = new HttpClient();
+            HttpClient client = new HttpClient();
 
             try
             {
                 // read info from version.txt on the server
-                var versionTextServer = await _client.GetStringAsync("http://requiemnetwork.com/launcher/version.txt");
+                var versionTextServer = await client.GetStringAsync("http://requiemnetwork.com/launcher/version.txt");
                 var versionTextServerSplit = versionTextServer.Split(',');
                 var currentVersionServer = versionTextServerSplit[0].Split('"')[3];
 
@@ -231,7 +419,7 @@ namespace Requiem_Network_Launcher
                     _currentVersionLocal = currentVersionLocal;
                     updating = true;
                     _continueSign = "continue";
-                    Update();
+                    this.Update();
                 }
                 else
                 {
@@ -265,7 +453,7 @@ namespace Requiem_Network_Launcher
             {
                 if (e is HttpRequestException)
                 {
-                    System.Windows.MessageBox.Show(e.Message, "Requiem - Connection error");
+                    System.Windows.MessageBox.Show("Cannot check game version. Server is not responding.", "Requiem - Connection error");
                     log.Error(e.ToString());
 
                     Dispatcher.Invoke((Action)(() =>
@@ -288,6 +476,8 @@ namespace Requiem_Network_Launcher
                     }));
                 }
             }
+
+            client.Dispose();
         }
         #endregion
 
@@ -333,13 +523,13 @@ namespace Requiem_Network_Launcher
                 }
                 File.Move(mainWindow.dropRateCalculatorPath, Path.Combine(mainWindow.rootDirectory, "OldDRC.exe"));
             }
-            
+
             if (_versionTxtCheck == "not found")
             {
-                HttpClient _client = new HttpClient();
+                HttpClient client = new HttpClient();
 
                 // get download links from server
-                var updateDownload = await _client.GetStringAsync("http://requiemnetwork.com/launcher/update_02.txt");
+                var updateDownload = await client.GetStringAsync("http://requiemnetwork.com/launcher/update_02.txt");
                 var updateDownloadSplit = updateDownload.Split(',');
 
                 // download information for people who update their game regularly
@@ -347,14 +537,16 @@ namespace Requiem_Network_Launcher
 
                 _updateDownloadID = updateDowndloadLink[3];
                 GetDownloadFileSize(updateDowndloadLink[5]);
+
+                client.Dispose();
             }
             else if (_versionTxtCheck == "yes")
             {
 
-                HttpClient _client = new HttpClient();
+                HttpClient client = new HttpClient();
 
                 // get download links from server
-                var updateDownload = await _client.GetStringAsync("http://requiemnetwork.com/launcher/update_01.txt");
+                var updateDownload = await client.GetStringAsync("http://requiemnetwork.com/launcher/update_01.txt");
                 var updateDownloadSplit = updateDownload.Split(',');
 
                 // download information for people who update their game regularly
@@ -374,6 +566,8 @@ namespace Requiem_Network_Launcher
                     _updateDownloadID = updateDowndloadNew[3];
                     GetDownloadFileSize(updateDowndloadNew[5]);
                 }
+
+                client.Dispose();
             }
 
             // create temporary zip file from download
@@ -444,7 +638,7 @@ namespace Requiem_Network_Launcher
         {
             // Stop stopwatch
             sw.Stop();
-            
+
             // get the size of the downloaded file
             long length = new System.IO.FileInfo(_updatePath).Length;
 
@@ -458,7 +652,7 @@ namespace Requiem_Network_Launcher
                 _continueSign = "stop";
                 log.Info("Finish downloading update.");
                 log.Info("Extracting files.");
-                
+
                 Dispatcher.Invoke((Action)(() =>
                 {
                     ShowHideDownloadInfo(DownloadInfoBox.Height, "1line");
@@ -595,34 +789,37 @@ namespace Requiem_Network_Launcher
         }
         #endregion
 
-        #region Check for launcher update
+        #region Check launcher version
         /// <summary>
         /// Check for launcher update
         /// </summary>
-        private async void CheckForLauncherUpdate()
+        private async void CheckLauncherVersion()
         {
             var launcherInfoFile = System.IO.File.ReadAllText(mainWindow.launcherInfoPath);
             var launcherInfoSplit = launcherInfoFile.Split('=');
             var launcherInfoLocal = launcherInfoSplit[1];
-
+            
             // work with .net framework 4.5 and above
-            HttpClient _client = new HttpClient();
-
+            HttpClient client = new HttpClient();
+            
             try
             {
                 // read info from version.txt on the server
-                var launcherInfoServer = await _client.GetStringAsync("http://requiemnetwork.com/launcher/info.txt");
+                var launcherInfoServer = await client.GetStringAsync("http://requiemnetwork.com/launcher/info.txt");
                 var launcherInfoServerSplit = launcherInfoServer.Split('=');
 
-                // check if player has updated their game yet or not
+                // check if player has updated their launcher yet or not
                 if (launcherInfoLocal != launcherInfoServerSplit[1])
                 {
                     if (mainWindow.waitingForRestart == false)
                     {
-                        UpdateLauncher();
+                        this.UpdateLauncher();
                         mainWindow.waitingForRestart = true;
                     }
-
+                }
+                else
+                {
+                    this.CheckGameVersion();
                 }
             }
             catch (Exception e)
@@ -630,6 +827,7 @@ namespace Requiem_Network_Launcher
                 log.Error("Check for launcher update error" + e.ToString());
             }
 
+            client.Dispose();
         }
 
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
@@ -638,7 +836,7 @@ namespace Requiem_Network_Launcher
             {
                 Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    CheckForLauncherUpdate();
+                    this.CheckLauncherVersion();
                 }));
             }
         }
@@ -715,7 +913,7 @@ namespace Requiem_Network_Launcher
         }
 
         #endregion
-        
+
         #region Rss feed handler
         /// <summary>
         /// Login on forum with Launcher account and handle RSS feed construction 
@@ -791,7 +989,7 @@ namespace Requiem_Network_Launcher
                 Console.WriteLine(e.Message);
                 log.Error(e.ToString());
             }
-            
+
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
@@ -816,60 +1014,7 @@ namespace Requiem_Network_Launcher
             public string Feed_forumLink { get => feed_forumLink; set => feed_forumLink = value; }
         }
         #endregion
-
-        #region Check file path 
-        /// <summary>
-        /// Validating file path
-        /// </summary>
-        private void CheckFilesPath()
-        {
-            log.Info("Checking files path.");
-
-            UpdateWarningWindow dialog = new UpdateWarningWindow();
-
-            var ngclientFilePath = System.IO.Path.Combine(mainWindow.rootDirectory, "NGClient.aes");
-
-            /*_dllPath = @"C:\Requiem\ko-KR\winnsi.dll";
-            _processPath = @"C:\Requiem\ko-KR\Vindictus.exe";
-            _versionPath = @"D:\test\version.txt";*/
-
-            if (!File.Exists(mainWindow.versionPath))
-            {
-                _versionTxtCheck = "not found";
-                dialog.ShowDialog();
-                Update();
-            }
-            else if (!File.Exists(mainWindow.dllPath))
-            {
-                _versionTxtCheck = "not found";
-                dialog.ShowDialog();
-                Update();
-            }
-            else if (!File.Exists(mainWindow.processPath))
-            {
-                _versionTxtCheck = "not found";
-                dialog.ShowDialog();
-                Update();
-            }
-            else if (!File.Exists(ngclientFilePath))
-            {
-                ShowHideDownloadInfo(DownloadInfoBox.Height, "2lines");
-                System.Windows.MessageBox.Show("Cannot find winnsi.dll. Please make sure launcher is in your main game folder!", "Missing files", MessageBoxButton.OK, MessageBoxImage.Error);
-                // update small version info at bottom left corner
-                Dispatcher.Invoke((Action)(() =>
-                {
-                    DownloadInfoBox.Text = "Missing files.\nContact staff for more help.";
-                    DownloadInfoBox.Foreground = new SolidColorBrush(Colors.Red);
-                    StartGameButton.IsEnabled = false;
-                }));
-            }
-            else
-            {
-                CheckGameVersion();
-            }
-        }
-        #endregion
-
+        
         #region DownloadInfoBox animation
         /// <summary>
         /// Create animation for information box
@@ -1108,6 +1253,5 @@ namespace Requiem_Network_Launcher
         }
 
         #endregion
-
     }
 }

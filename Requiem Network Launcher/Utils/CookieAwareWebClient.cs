@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace Requiem_Network_Launcher
+namespace Requiem_Network_Launcher.Utils
 {
     // Custom WebClient with cookies for downloading files from google drive
     public class CookieAwareWebClient : WebClient

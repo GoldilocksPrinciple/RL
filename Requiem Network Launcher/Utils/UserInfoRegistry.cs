@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Net;
 
-namespace Requiem_Network_Launcher
+namespace Requiem_Network_Launcher.Utils
 {
     class UserInfoRegistry
     {

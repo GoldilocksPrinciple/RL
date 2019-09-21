@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.IO;
 using NLog;
+using Requiem_Network_Launcher.Utils;
 
 namespace Requiem_Network_Launcher
 {

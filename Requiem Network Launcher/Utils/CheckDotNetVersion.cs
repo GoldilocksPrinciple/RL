@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 
-namespace Requiem_Network_Launcher
+namespace Requiem_Network_Launcher.Utils
 {
     class CheckDotNetVersion
     {
